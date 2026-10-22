@@ -18,8 +18,6 @@ export interface AuthUserPayload {
   name: string;
   email: string;
   role: 'user';
-  savedRecipes: string[];
-  preferences: string[];
   createdAt: Date;
 }
 
@@ -60,8 +58,6 @@ export class AuthService {
       email: normalizedEmail,
       password: hashedPassword,
       role: 'user',
-      savedRecipes: [],
-      preferences: [],
     });
 
     const token = this.generateToken({
@@ -76,8 +72,6 @@ export class AuthService {
         name: newUser.name,
         email: newUser.email,
         role: 'user',
-        savedRecipes: newUser.savedRecipes,
-        preferences: newUser.preferences,
         createdAt: newUser.createdAt,
       },
       token,
@@ -113,8 +107,6 @@ export class AuthService {
         name: user.name,
         email: user.email,
         role: 'user',
-        savedRecipes: user.savedRecipes,
-        preferences: user.preferences,
         createdAt: user.createdAt,
       },
       token,
@@ -134,64 +126,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       role: 'user',
-      savedRecipes: user.savedRecipes || [],
-      preferences: user.preferences || [],
       createdAt: user.createdAt,
     };
-  }
-
-  public static async getSavedRecipes(userId: string): Promise<string[]> {
-    const user = await User.findById(userId).select('savedRecipes');
-    if (!user) {
-      const error = new Error('User not found');
-      (error as Error & { statusCode?: number }).statusCode = 404;
-      throw error;
-    }
-    return user.savedRecipes || [];
-  }
-
-  public static async addSavedRecipe(userId: string, recipeId: string): Promise<string[]> {
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $addToSet: { savedRecipes: recipeId } },
-      { new: true }
-    ).select('savedRecipes');
-
-    if (!user) {
-      const error = new Error('User not found');
-      (error as Error & { statusCode?: number }).statusCode = 404;
-      throw error;
-    }
-    return user.savedRecipes || [];
-  }
-
-  public static async removeSavedRecipe(userId: string, recipeId: string): Promise<string[]> {
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $pull: { savedRecipes: recipeId } },
-      { new: true }
-    ).select('savedRecipes');
-
-    if (!user) {
-      const error = new Error('User not found');
-      (error as Error & { statusCode?: number }).statusCode = 404;
-      throw error;
-    }
-    return user.savedRecipes || [];
-  }
-
-  public static async updatePreferences(userId: string, preferences: string[]): Promise<string[]> {
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $set: { preferences } },
-      { new: true }
-    ).select('preferences');
-
-    if (!user) {
-      const error = new Error('User not found');
-      (error as Error & { statusCode?: number }).statusCode = 404;
-      throw error;
-    }
-    return user.preferences || [];
   }
 }
