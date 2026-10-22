@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import recipeRoutes from './recipe.routes.js';
 
 const apiRouter = Router();
 
@@ -7,10 +8,11 @@ apiRouter.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    service: 'Recipe API'
+    service: 'Recipe API',
   });
 });
 
 // Mount recipe routes
+apiRouter.use('/recipes', recipeRoutes);
 
 export default apiRouter;
