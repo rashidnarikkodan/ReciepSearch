@@ -8,7 +8,9 @@ export interface AuthenticatedUser {
   _id?: string;
   name: string;
   email: string;
-  role: string;
+  role: 'user';
+  savedRecipes?: string[];
+  preferences?: string[];
   createdAt?: Date;
 }
 
@@ -38,7 +40,7 @@ export async function authenticateToken(
     if (!token) {
       res.status(401).json({
         success: false,
-        message: 'Authentication required. Token missing from Authorization header and cookies.',
+        message: 'Authentication required. Please sign in.',
       });
       return;
     }
@@ -52,7 +54,7 @@ export async function authenticateToken(
       const isExpired = err instanceof jwt.TokenExpiredError;
       res.status(401).json({
         success: false,
-        message: isExpired ? 'Token has expired. Please login again.' : 'Invalid authentication token.',
+        message: isExpired ? 'Session has expired. Please sign in again.' : 'Invalid authentication token.',
       });
       return;
     }
@@ -71,7 +73,9 @@ export async function authenticateToken(
       _id: user._id.toString(),
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: 'user',
+      savedRecipes: user.savedRecipes,
+      preferences: user.preferences,
       createdAt: user.createdAt,
     };
 

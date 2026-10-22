@@ -6,7 +6,6 @@ export interface RegisterDTO {
   name: string;
   email: string;
   password: string;
-  role?: 'user' | 'admin';
 }
 
 export interface LoginDTO {
@@ -14,21 +13,25 @@ export interface LoginDTO {
   password: string;
 }
 
+export interface AuthUserPayload {
+  id: string;
+  name: string;
+  email: string;
+  role: 'user';
+  savedRecipes: string[];
+  preferences: string[];
+  createdAt: Date;
+}
+
 export interface AuthResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    createdAt: Date;
-  };
+  user: AuthUserPayload;
   token: string;
 }
 
 export interface JwtUserPayload {
   userId: string;
   email: string;
-  role: string;
+  role: 'user';
 }
 
 export class AuthService {
@@ -56,13 +59,15 @@ export class AuthService {
       name: data.name.trim(),
       email: normalizedEmail,
       password: hashedPassword,
-      role: data.role || 'user',
+      role: 'user',
+      savedRecipes: [],
+      preferences: [],
     });
 
     const token = this.generateToken({
       userId: newUser._id.toString(),
       email: newUser.email,
-      role: newUser.role,
+      role: 'user',
     });
 
     return {
@@ -70,7 +75,9 @@ export class AuthService {
         id: newUser._id.toString(),
         name: newUser.name,
         email: newUser.email,
-        role: newUser.role,
+        role: 'user',
+        savedRecipes: newUser.savedRecipes,
+        preferences: newUser.preferences,
         createdAt: newUser.createdAt,
       },
       token,
@@ -97,7 +104,7 @@ export class AuthService {
     const token = this.generateToken({
       userId: user._id.toString(),
       email: user.email,
-      role: user.role,
+      role: 'user',
     });
 
     return {
@@ -105,20 +112,86 @@ export class AuthService {
         id: user._id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
+        role: 'user',
+        savedRecipes: user.savedRecipes,
+        preferences: user.preferences,
         createdAt: user.createdAt,
       },
       token,
     };
   }
 
-  public static async getProfile(userId: string) {
+  public static async getProfile(userId: string): Promise<AuthUserPayload> {
     const user = await User.findById(userId).select('-password');
     if (!user) {
       const error = new Error('User not found');
       (error as Error & { statusCode?: number }).statusCode = 404;
       throw error;
     }
-    return user;
+
+    return {
+      id: user._id.toString(),
+      name: user.name,
+      email: user.email,
+      role: 'user',
+      savedRecipes: user.savedRecipes || [],
+      preferences: user.preferences || [],
+      createdAt: user.createdAt,
+    };
+  }
+
+  public static async getSavedRecipes(userId: string): Promise<string[]> {
+    const user = await User.findById(userId).select('savedRecipes');
+    if (!user) {
+      const error = new Error('User not found');
+      (error as Error & { statusCode?: number }).statusCode = 404;
+      throw error;
+    }
+    return user.savedRecipes || [];
+  }
+
+  public static async addSavedRecipe(userId: string, recipeId: string): Promise<string[]> {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { savedRecipes: recipeId } },
+      { new: true }
+    ).select('savedRecipes');
+
+    if (!user) {
+      const error = new Error('User not found');
+      (error as Error & { statusCode?: number }).statusCode = 404;
+      throw error;
+    }
+    return user.savedRecipes || [];
+  }
+
+  public static async removeSavedRecipe(userId: string, recipeId: string): Promise<string[]> {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $pull: { savedRecipes: recipeId } },
+      { new: true }
+    ).select('savedRecipes');
+
+    if (!user) {
+      const error = new Error('User not found');
+      (error as Error & { statusCode?: number }).statusCode = 404;
+      throw error;
+    }
+    return user.savedRecipes || [];
+  }
+
+  public static async updatePreferences(userId: string, preferences: string[]): Promise<string[]> {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { $set: { preferences } },
+      { new: true }
+    ).select('preferences');
+
+    if (!user) {
+      const error = new Error('User not found');
+      (error as Error & { statusCode?: number }).statusCode = 404;
+      throw error;
+    }
+    return user.preferences || [];
   }
 }
