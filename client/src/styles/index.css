@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  --color-primary: #365B45;
+  --color-primary-hover: #2b4937;
+  --color-primary-active: #21392b;
+
+  --color-bg: #FAFAF7;
+  --color-surface: #FFFFFF;
+  --color-text-main: #242824;
+  --color-text-muted: #737873;
+  --color-border-subtle: #E3E6E0;
+  --color-error: #B42318;
+}
+
+@layer base {
+  :root {
+    --color-primary: #365B45;
+    --color-primary-hover: #2b4937;
+    --color-bg: #FAFAF7;
+    --color-surface: #FFFFFF;
+    --color-text: #242824;
+    --color-text-secondary: #737873;
+    --color-border: #E3E6E0;
+    --color-error: #B42318;
+  }
+
+  * {
+    box-sizing: border-box;
+    box-shadow: none !important;
+  }
+
+  body {
+    background-color: #FAFAF7;
+    color: #242824;
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  input, button, select, textarea {
+    font-family: inherit;
+  }
+}
