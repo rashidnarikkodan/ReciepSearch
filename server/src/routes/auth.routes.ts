@@ -10,15 +10,8 @@ const router = Router();
 router.post('/register', authRateLimiter, asyncHandler(AuthController.register));
 router.post('/login', authRateLimiter, asyncHandler(AuthController.login));
 
-// Protected user endpoints
+// Protected auth session & profile endpoints
 router.get('/me', authenticateToken, asyncHandler(AuthController.getMe));
-router.get('/profile', authenticateToken, asyncHandler(AuthController.getMe));
 router.post('/logout', authenticateToken, asyncHandler(AuthController.logout));
-
-// Protected user-specific favorites & preferences
-router.get('/favorites', authenticateToken, asyncHandler(AuthController.getFavorites));
-router.post('/favorites/:recipeId', authenticateToken, asyncHandler(AuthController.addFavorite));
-router.delete('/favorites/:recipeId', authenticateToken, asyncHandler(AuthController.removeFavorite));
-router.put('/preferences', authenticateToken, asyncHandler(AuthController.updatePreferences));
 
 export default router;
