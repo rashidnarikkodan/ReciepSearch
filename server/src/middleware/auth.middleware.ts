@@ -9,8 +9,6 @@ export interface AuthenticatedUser {
   name: string;
   email: string;
   role: 'user';
-  savedRecipes?: string[];
-  preferences?: string[];
   createdAt?: Date;
 }
 
@@ -74,8 +72,6 @@ export async function authenticateToken(
       name: user.name,
       email: user.email,
       role: 'user',
-      savedRecipes: user.savedRecipes,
-      preferences: user.preferences,
       createdAt: user.createdAt,
     };
 

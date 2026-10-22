@@ -12,6 +12,5 @@ connectDB();
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
   console.log(`Auth endpoints: http://localhost:${PORT}/auth`);
-  console.log(`API URL: http://localhost:${PORT}/api/recipes`);
   console.log(`Health Check: http://localhost:${PORT}/api/health`);
 });

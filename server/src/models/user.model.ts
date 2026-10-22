@@ -5,8 +5,6 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'user';
-  savedRecipes: string[];
-  preferences: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,14 +36,6 @@ const userSchema = new Schema<IUser>(
       type: String,
       enum: ['user'],
       default: 'user',
-    },
-    savedRecipes: {
-      type: [String],
-      default: [],
-    },
-    preferences: {
-      type: [String],
-      default: [],
     },
   },
   {
