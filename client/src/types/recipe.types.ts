@@ -5,7 +5,13 @@ export interface RecipeSummary {
   summary: string;
   readyInMinutes: number;
   servings: number;
+  cuisines?: string[];
+  diets?: string[];
+  dishTypes?: string[];
+  healthScore?: number;
+  aggregateLikes?: number;
 }
+
 
 export interface RecipeIngredient {
   id: number;
