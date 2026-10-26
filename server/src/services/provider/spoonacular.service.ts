@@ -44,146 +44,8 @@ interface CacheEntry<T> {
   expiresAt: number;
 }
 
-// Fallback curated mock data used when SPOONACULAR_API_KEY is not configured or in testing
-const MOCK_RECIPES: RecipeDetail[] = [
-  {
-    id: 716429,
-    title: 'Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs',
-    image: 'https://img.spoonacular.com/recipes/716429-312x231.jpg',
-    summary: 'A flavorful, comforting vegetarian pasta toss with crispy cauliflower florets, toasted breadcrumbs, and fresh herbs.',
-    readyInMinutes: 45,
-    servings: 2,
-    preparationMinutes: 15,
-    cookingMinutes: 30,
-    cuisines: ['italian', 'mediterranean'],
-    dishTypes: ['lunch', 'main course'],
-    diets: ['vegetarian'],
-    instructions: '1. Boil pasta until al dente. 2. Sauté cauliflower with garlic and scallions in olive oil. 3. Toast breadcrumbs in butter. 4. Toss pasta with cauliflower mixture and top with breadcrumbs.',
-    ingredients: [
-      { id: 11135, name: 'cauliflower', original: '1 head cauliflower, chopped', amount: 1, unit: 'head' },
-      { id: 11291, name: 'green onions', original: '1/3 cup chopped scallions', amount: 0.33, unit: 'cup' },
-      { id: 11215, name: 'garlic', original: '3 cloves garlic, minced', amount: 3, unit: 'cloves' },
-      { id: 20420, name: 'pasta', original: '8 oz fettuccine pasta', amount: 8, unit: 'oz' },
-      { id: 18079, name: 'breadcrumbs', original: '1/2 cup panko breadcrumbs', amount: 0.5, unit: 'cup' },
-      { id: 4053, name: 'olive oil', original: '3 tbsp extra virgin olive oil', amount: 3, unit: 'tbsp' }
-    ],
-    steps: [
-      { number: 1, step: 'Bring a large pot of salted water to a boil and cook pasta according to package directions.' },
-      { number: 2, step: 'Heat olive oil in a skillet over medium heat, add minced garlic and scallions until fragrant.' },
-      { number: 3, step: 'Add chopped cauliflower florets and cook until golden brown and tender.' },
-      { number: 4, step: 'Toast breadcrumbs until crisp in a small pan.' },
-      { number: 5, step: 'Combine drained pasta with cauliflower skillet, toss gently, and serve garnished with toasted breadcrumbs.' }
-    ],
-    nutrients: [
-      { name: 'Calories', amount: 584, unit: 'kcal', percentOfDailyNeeds: 29 },
-      { name: 'Protein', amount: 19, unit: 'g', percentOfDailyNeeds: 38 },
-      { name: 'Fat', amount: 20, unit: 'g', percentOfDailyNeeds: 31 },
-      { name: 'Carbohydrates', amount: 84, unit: 'g', percentOfDailyNeeds: 28 },
-      { name: 'Fiber', amount: 8, unit: 'g', percentOfDailyNeeds: 32 }
-    ]
-  },
-  {
-    id: 715538,
-    title: 'What to make for dinner tonight? Bruschetta Style Pork Chops',
-    image: 'https://img.spoonacular.com/recipes/715538-312x231.jpg',
-    summary: 'Juicy skillet pork chops topped with a fresh tomato, basil, and balsamic bruschetta relish.',
-    readyInMinutes: 35,
-    servings: 4,
-    preparationMinutes: 10,
-    cookingMinutes: 25,
-    cuisines: ['italian', 'american'],
-    dishTypes: ['dinner', 'main course'],
-    diets: ['gluten free', 'ketogenic'],
-    instructions: '1. Season pork chops with salt and pepper. 2. Sear pork in olive oil until golden. 3. Dice tomatoes and mix with basil, garlic, and balsamic. 4. Top pork chops with bruschetta mixture and serve.',
-    ingredients: [
-      { id: 10010062, name: 'pork chops', original: '4 bone-in pork chops', amount: 4, unit: 'chops' },
-      { id: 11529, name: 'tomatoes', original: '3 ripe roma tomatoes, diced', amount: 3, unit: 'tomatoes' },
-      { id: 2044, name: 'fresh basil', original: '1/4 cup fresh basil leaves, chopped', amount: 0.25, unit: 'cup' },
-      { id: 2069, name: 'balsamic vinegar', original: '2 tbsp balsamic vinegar', amount: 2, unit: 'tbsp' },
-      { id: 11215, name: 'garlic', original: '2 cloves garlic, minced', amount: 2, unit: 'cloves' }
-    ],
-    steps: [
-      { number: 1, step: 'Pat pork chops dry and generously season both sides with sea salt and cracked black pepper.' },
-      { number: 2, step: 'In a medium bowl, combine diced tomatoes, minced garlic, chopped basil, and balsamic vinegar.' },
-      { number: 3, step: 'Heat olive oil in a skillet over medium-high heat and sear pork chops for 5–6 minutes per side.' },
-      { number: 4, step: 'Remove skillet from heat, let chops rest for 5 minutes, then spoon fresh tomato bruschetta topping over each chop.' }
-    ],
-    nutrients: [
-      { name: 'Calories', amount: 421, unit: 'kcal', percentOfDailyNeeds: 21 },
-      { name: 'Protein', amount: 48, unit: 'g', percentOfDailyNeeds: 96 },
-      { name: 'Fat', amount: 22, unit: 'g', percentOfDailyNeeds: 34 },
-      { name: 'Carbohydrates', amount: 6, unit: 'g', percentOfDailyNeeds: 2 }
-    ]
-  },
-  {
-    id: 644387,
-    title: 'Garlic Herb Baked Salmon with Asparagus',
-    image: 'https://img.spoonacular.com/recipes/644387-312x231.jpg',
-    summary: 'Sheet-pan Atlantic salmon fillets baked to perfection with tender green asparagus, lemon slices, and aromatic garlic butter.',
-    readyInMinutes: 25,
-    servings: 2,
-    preparationMinutes: 10,
-    cookingMinutes: 15,
-    cuisines: ['mediterranean', 'european'],
-    dishTypes: ['dinner', 'main course'],
-    diets: ['gluten free', 'pescetarian', 'ketogenic', 'whole30'],
-    instructions: '1. Preheat oven to 400°F. 2. Place salmon fillets and trimmed asparagus on baking sheet. 3. Brush with melted garlic herb butter. 4. Bake for 15 minutes.',
-    ingredients: [
-      { id: 15076, name: 'salmon fillets', original: '2 wild salmon fillets (6 oz each)', amount: 2, unit: 'fillets' },
-      { id: 11011, name: 'asparagus', original: '1 bunch fresh asparagus, trimmed', amount: 1, unit: 'bunch' },
-      { id: 1001, name: 'butter', original: '2 tbsp melted butter', amount: 2, unit: 'tbsp' },
-      { id: 9152, name: 'lemon juice', original: '1 tbsp fresh lemon juice', amount: 1, unit: 'tbsp' },
-      { id: 11215, name: 'garlic', original: '3 cloves garlic, minced', amount: 3, unit: 'cloves' }
-    ],
-    steps: [
-      { number: 1, step: 'Preheat oven to 400°F (200°C) and line a rimmed baking sheet with parchment paper.' },
-      { number: 2, step: 'Arrange salmon fillets and trimmed asparagus in a single layer on the sheet.' },
-      { number: 3, step: 'Whisk together melted butter, minced garlic, lemon juice, salt, and chopped parsley.' },
-      { number: 4, step: 'Brush mixture over the salmon and asparagus.' },
-      { number: 5, step: 'Bake for 12–15 minutes until salmon flakes easily with a fork.' }
-    ],
-    nutrients: [
-      { name: 'Calories', amount: 395, unit: 'kcal', percentOfDailyNeeds: 20 },
-      { name: 'Protein', amount: 35, unit: 'g', percentOfDailyNeeds: 70 },
-      { name: 'Fat', amount: 25, unit: 'g', percentOfDailyNeeds: 38 },
-      { name: 'Carbohydrates', amount: 5, unit: 'g', percentOfDailyNeeds: 2 }
-    ]
-  },
-  {
-    id: 654959,
-    title: 'Pasta with Garlic and Oil (Aglio e Olio)',
-    image: 'https://img.spoonacular.com/recipes/654959-312x231.jpg',
-    summary: 'A classic Roman pasta dish featuring spaghetti emulsified in extra virgin olive oil, golden toasted garlic, red chili flakes, and parsley.',
-    readyInMinutes: 20,
-    servings: 4,
-    preparationMinutes: 5,
-    cookingMinutes: 15,
-    cuisines: ['italian'],
-    dishTypes: ['lunch', 'main course'],
-    diets: ['vegetarian', 'vegan'],
-    instructions: '1. Cook spaghetti in salted water. 2. Gently sauté sliced garlic and red pepper flakes in plenty of olive oil. 3. Toss pasta with garlic oil and reserved cooking water to create an emulsion.',
-    ingredients: [
-      { id: 11420420, name: 'spaghetti', original: '1 lb spaghetti', amount: 1, unit: 'lb' },
-      { id: 11215, name: 'garlic', original: '8 cloves garlic, thinly sliced', amount: 8, unit: 'cloves' },
-      { id: 4053, name: 'olive oil', original: '1/2 cup extra virgin olive oil', amount: 0.5, unit: 'cup' },
-      { id: 2044, name: 'parsley', original: '1/2 cup chopped fresh flat-leaf parsley', amount: 0.5, unit: 'cup' },
-      { id: 1032009, name: 'red pepper flakes', original: '1/2 tsp crushed red pepper flakes', amount: 0.5, unit: 'tsp' }
-    ],
-    steps: [
-      { number: 1, step: 'Cook spaghetti in a large pot of boiling salted water until 1 minute shy of al dente.' },
-      { number: 2, step: 'In a wide skillet, heat olive oil over medium-low heat and add sliced garlic and chili flakes.' },
-      { number: 3, step: 'Cook gently for 3 minutes until garlic is pale golden, never burnt.' },
-      { number: 4, step: 'Transfer pasta directly to the skillet along with 1/2 cup of starchy pasta cooking water.' },
-      { number: 5, step: 'Stir vigorously until an emulsion coats the pasta, finish with chopped parsley, and serve immediately.' }
-    ],
-    nutrients: [
-      { name: 'Calories', amount: 480, unit: 'kcal', percentOfDailyNeeds: 24 },
-      { name: 'Protein', amount: 13, unit: 'g', percentOfDailyNeeds: 26 },
-      { name: 'Fat', amount: 18, unit: 'g', percentOfDailyNeeds: 28 },
-      { name: 'Carbohydrates', amount: 68, unit: 'g', percentOfDailyNeeds: 23 }
-    ]
-  }
-];
+import { MOCK_RECIPES } from './mockRecipes.js';
+
 
 export class SpoonacularService {
   private static readonly TIMEOUT_MS = 8000;
@@ -266,6 +128,11 @@ export class SpoonacularService {
         summary?: string;
         readyInMinutes?: number;
         servings?: number;
+        cuisines?: string[];
+        diets?: string[];
+        dishTypes?: string[];
+        healthScore?: number;
+        aggregateLikes?: number;
       }>;
       totalResults?: number;
     }>(url);
@@ -281,6 +148,11 @@ export class SpoonacularService {
       summary: this.cleanSummaryHtml(item.summary || ''),
       readyInMinutes: item.readyInMinutes || 0,
       servings: item.servings || 0,
+      cuisines: item.cuisines || [],
+      diets: item.diets || [],
+      dishTypes: item.dishTypes || [],
+      healthScore: item.healthScore,
+      aggregateLikes: item.aggregateLikes,
     }));
 
     const result: ProviderSearchResult = {
@@ -328,6 +200,8 @@ export class SpoonacularService {
       cuisines?: string[];
       dishTypes?: string[];
       diets?: string[];
+      healthScore?: number;
+      aggregateLikes?: number;
       instructions?: string;
       sourceUrl?: string;
       extendedIngredients?: Array<{
@@ -387,6 +261,8 @@ export class SpoonacularService {
       cuisines: raw.cuisines || [],
       dishTypes: raw.dishTypes || [],
       diets: raw.diets || [],
+      healthScore: raw.healthScore,
+      aggregateLikes: raw.aggregateLikes,
       instructions: this.cleanSummaryHtml(raw.instructions || ''),
       ingredients,
       steps,
@@ -537,6 +413,11 @@ export class SpoonacularService {
       summary: r.summary,
       readyInMinutes: r.readyInMinutes,
       servings: r.servings,
+      cuisines: r.cuisines || [],
+      diets: r.diets || [],
+      dishTypes: r.dishTypes || [],
+      healthScore: r.healthScore,
+      aggregateLikes: r.aggregateLikes,
     }));
 
     return {
