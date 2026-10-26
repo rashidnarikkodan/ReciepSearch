@@ -13,7 +13,7 @@ export function AuthModal() {
       title={<Logo size="sm" />}
       maxWidth="max-w-[440px]"
     >
-      <div className="p-6">
+      <div className="p-5">
         <AuthCard
           key={authModalMode}
           initialMode={authModalMode}
