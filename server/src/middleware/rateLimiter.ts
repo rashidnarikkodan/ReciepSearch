@@ -55,3 +55,10 @@ export const authRateLimiter = createRateLimiter({
   max: 20,
   message: 'Too many authentication attempts from this IP. Please try again later.',
 });
+
+// 1-minute window, max 60 requests for recipe search & details
+export const recipeRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: 'Too many recipe requests. Please slow down and try again later.',
+});

@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import recipeRoutes from './recipe.routes.js';
+import favoriteRoutes from './favorite.routes.js';
 
 const apiRouter = Router();
 
@@ -10,5 +12,11 @@ apiRouter.get('/health', (_req, res) => {
     service: 'Recipe API',
   });
 });
+
+// Recipe discovery (Public, Read-Only)
+apiRouter.use('/recipes', recipeRoutes);
+
+// User Favorites (Authenticated)
+apiRouter.use('/favorites', favoriteRoutes);
 
 export default apiRouter;
