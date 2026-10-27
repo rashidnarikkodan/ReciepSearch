@@ -6,6 +6,7 @@ import {
   SUPPORTED_SORT_OPTIONS,
   type RecipeSearchQuery,
 } from '../types/recipe.types.js';
+import { ERROR_MESSAGES } from '../constants/index.js';
 
 export interface ValidationResult<T> {
   isValid: boolean;
@@ -14,12 +15,12 @@ export interface ValidationResult<T> {
 }
 
 export class RecipeValidator {
-  private static readonly MAX_QUERY_LENGTH = 100;
-  private static readonly MAX_PAGE = 1000;
-  private static readonly DEFAULT_LIMIT = 12;
-  private static readonly MAX_LIMIT = 50;
-  private static readonly MAX_INGREDIENTS_LIST = 10;
-  private static readonly MAX_INGREDIENT_LEN = 50;
+  public static readonly MAX_QUERY_LENGTH = 100;
+  public static readonly MAX_PAGE = 1000;
+  public static readonly DEFAULT_LIMIT = 12;
+  public static readonly MAX_LIMIT = 50;
+  public static readonly MAX_INGREDIENTS_LIST = 10;
+  public static readonly MAX_INGREDIENT_LEN = 50;
 
   public static validateSearchQuery(query: Record<string, unknown>): ValidationResult<RecipeSearchQuery> {
     const errors: string[] = [];
@@ -28,11 +29,11 @@ export class RecipeValidator {
     let sanitizedQuery: string | undefined;
     if (query.query !== undefined) {
       if (typeof query.query !== 'string') {
-        errors.push('Search query must be a string.');
+        errors.push(ERROR_MESSAGES.VALIDATION.QUERY_MUST_BE_STRING);
       } else {
         const trimmed = query.query.trim();
         if (trimmed.length > this.MAX_QUERY_LENGTH) {
-          errors.push(`Search query cannot exceed ${this.MAX_QUERY_LENGTH} characters.`);
+          errors.push(ERROR_MESSAGES.VALIDATION.QUERY_TOO_LONG(this.MAX_QUERY_LENGTH));
         } else if (trimmed.length > 0) {
           sanitizedQuery = trimmed;
         }
@@ -44,9 +45,9 @@ export class RecipeValidator {
     if (query.page !== undefined) {
       const parsedPage = Number(query.page);
       if (!Number.isInteger(parsedPage) || parsedPage < 1) {
-        errors.push('Page must be a positive integer greater than or equal to 1.');
+        errors.push(ERROR_MESSAGES.VALIDATION.PAGE_POSITIVE_INT);
       } else if (parsedPage > this.MAX_PAGE) {
-        errors.push(`Page cannot exceed ${this.MAX_PAGE}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.PAGE_TOO_HIGH(this.MAX_PAGE));
       } else {
         page = parsedPage;
       }
@@ -57,9 +58,9 @@ export class RecipeValidator {
     if (query.limit !== undefined) {
       const parsedLimit = Number(query.limit);
       if (!Number.isInteger(parsedLimit) || parsedLimit < 1) {
-        errors.push('Limit must be a positive integer greater than or equal to 1.');
+        errors.push(ERROR_MESSAGES.VALIDATION.LIMIT_POSITIVE_INT);
       } else if (parsedLimit > this.MAX_LIMIT) {
-        errors.push(`Limit cannot exceed maximum of ${this.MAX_LIMIT}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.LIMIT_TOO_HIGH(this.MAX_LIMIT));
       } else {
         limit = parsedLimit;
       }
@@ -75,7 +76,7 @@ export class RecipeValidator {
 
       const invalid = cuisines.filter((c) => !SUPPORTED_CUISINES.includes(c as (typeof SUPPORTED_CUISINES)[number]));
       if (invalid.length > 0) {
-        errors.push(`Unsupported cuisine(s): ${invalid.join(', ')}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.UNSUPPORTED_CUISINE(invalid.join(', ')));
       } else if (cuisines.length > 0) {
         sanitizedCuisine = cuisines.join(',');
       }
@@ -91,7 +92,7 @@ export class RecipeValidator {
 
       const invalid = diets.filter((d) => !SUPPORTED_DIETS.includes(d as (typeof SUPPORTED_DIETS)[number]));
       if (invalid.length > 0) {
-        errors.push(`Unsupported diet(s): ${invalid.join(', ')}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.UNSUPPORTED_DIET(invalid.join(', ')));
       } else if (diets.length > 0) {
         sanitizedDiet = diets.join(',');
       }
@@ -109,7 +110,7 @@ export class RecipeValidator {
         (i) => !SUPPORTED_INTOLERANCES.includes(i as (typeof SUPPORTED_INTOLERANCES)[number])
       );
       if (invalid.length > 0) {
-        errors.push(`Unsupported intolerance(s): ${invalid.join(', ')}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.UNSUPPORTED_INTOLERANCE(invalid.join(', ')));
       } else if (intolerances.length > 0) {
         sanitizedIntolerances = intolerances.join(',');
       }
@@ -120,7 +121,7 @@ export class RecipeValidator {
     if (query.type !== undefined && typeof query.type === 'string' && query.type.trim()) {
       const normalizedType = query.type.trim().toLowerCase();
       if (!SUPPORTED_MEAL_TYPES.includes(normalizedType as (typeof SUPPORTED_MEAL_TYPES)[number])) {
-        errors.push(`Unsupported meal category type: ${query.type}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.UNSUPPORTED_MEAL_TYPE(String(query.type)));
       } else {
         sanitizedType = normalizedType;
       }
@@ -135,17 +136,17 @@ export class RecipeValidator {
         .filter(Boolean);
 
       if (items.length > this.MAX_INGREDIENTS_LIST) {
-        errors.push(`${fieldName} cannot exceed ${this.MAX_INGREDIENTS_LIST} ingredients.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.MAX_INGREDIENTS_EXCEEDED(fieldName, this.MAX_INGREDIENTS_LIST));
         return undefined;
       }
 
       for (const item of items) {
         if (item.length > this.MAX_INGREDIENT_LEN) {
-          errors.push(`Each ingredient in ${fieldName} must be under ${this.MAX_INGREDIENT_LEN} characters.`);
+          errors.push(ERROR_MESSAGES.VALIDATION.INGREDIENT_TOO_LONG(fieldName, this.MAX_INGREDIENT_LEN));
           return undefined;
         }
         if (!/^[a-z0-9\s-]+$/i.test(item)) {
-          errors.push(`Invalid characters in ${fieldName}: "${item}".`);
+          errors.push(ERROR_MESSAGES.VALIDATION.INVALID_INGREDIENT_CHARS(fieldName, item));
           return undefined;
         }
       }
@@ -161,7 +162,7 @@ export class RecipeValidator {
     if (query.sort !== undefined && typeof query.sort === 'string' && query.sort.trim()) {
       const normalizedSort = query.sort.trim().toLowerCase();
       if (!SUPPORTED_SORT_OPTIONS.includes(normalizedSort as (typeof SUPPORTED_SORT_OPTIONS)[number])) {
-        errors.push(`Unsupported sort option: ${query.sort}.`);
+        errors.push(ERROR_MESSAGES.VALIDATION.UNSUPPORTED_SORT(String(query.sort)));
       } else {
         sanitizedSort = normalizedSort;
       }
@@ -174,7 +175,7 @@ export class RecipeValidator {
       if (dir === 'asc' || dir === 'desc') {
         sanitizedSortDirection = dir;
       } else {
-        errors.push('sortDirection must be either "asc" or "desc".');
+        errors.push(ERROR_MESSAGES.VALIDATION.INVALID_SORT_DIRECTION);
       }
     }
 
@@ -202,17 +203,17 @@ export class RecipeValidator {
 
   public static validateRecipeId(id: unknown): ValidationResult<number> {
     if (id === undefined || id === null || id === '') {
-      return { isValid: false, errors: ['Recipe ID is required.'] };
+      return { isValid: false, errors: [ERROR_MESSAGES.VALIDATION.RECIPE_ID_REQUIRED] };
     }
 
     const strId = String(id).trim();
     if (!/^\d+$/.test(strId)) {
-      return { isValid: false, errors: ['Recipe ID must be a valid positive integer.'] };
+      return { isValid: false, errors: [ERROR_MESSAGES.VALIDATION.RECIPE_ID_POSITIVE_INT] };
     }
 
     const numericId = parseInt(strId, 10);
     if (!Number.isSafeInteger(numericId) || numericId <= 0) {
-      return { isValid: false, errors: ['Recipe ID must be a valid positive integer.'] };
+      return { isValid: false, errors: [ERROR_MESSAGES.VALIDATION.RECIPE_ID_POSITIVE_INT] };
     }
 
     return { isValid: true, sanitized: numericId };

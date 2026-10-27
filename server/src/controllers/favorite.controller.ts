@@ -2,6 +2,12 @@ import type { Request, Response } from 'express';
 import { FavoriteService } from '../services/favorite.service.js';
 import { RecipeValidator } from '../validators/recipe.validator.js';
 import { RecipeNotFoundError } from '../services/provider/spoonacular.service.js';
+import {
+  HTTP_STATUS,
+  ERROR_CODES,
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '../constants/index.js';
 
 export class FavoriteController {
   /**
@@ -10,11 +16,12 @@ export class FavoriteController {
   public static async listFavorites(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      res.status(401).json({
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
+        message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_VIEW,
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required to view favorites.',
+          code: ERROR_CODES.UNAUTHORIZED,
+          message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_VIEW,
         },
       });
       return;
@@ -22,7 +29,7 @@ export class FavoriteController {
 
     const favorites = await FavoriteService.getFavoritesByUser(userId);
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       count: favorites.length,
       data: favorites,
@@ -35,11 +42,12 @@ export class FavoriteController {
   public static async addFavorite(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      res.status(401).json({
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
+        message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_SAVE,
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required to save favorites.',
+          code: ERROR_CODES.UNAUTHORIZED,
+          message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_SAVE,
         },
       });
       return;
@@ -49,11 +57,13 @@ export class FavoriteController {
     const validation = RecipeValidator.validateRecipeId(rawRecipeId);
 
     if (!validation.isValid || validation.sanitized === undefined) {
-      res.status(400).json({
+      const message = validation.errors?.[0] || ERROR_MESSAGES.FAVORITES.RECIPE_ID_REQUIRED;
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
+        message,
         error: {
-          code: 'INVALID_RECIPE_ID',
-          message: validation.errors?.[0] || 'Valid recipeId is required.',
+          code: ERROR_CODES.INVALID_RECIPE_ID,
+          message,
         },
       });
       return;
@@ -68,15 +78,16 @@ export class FavoriteController {
         servings: typeof req.body.servings === 'number' ? req.body.servings : undefined,
       });
 
-      res.status(201).json({
+      res.status(HTTP_STATUS.CREATED).json({
         success: true,
-        message: 'Recipe saved to favorites.',
+        message: SUCCESS_MESSAGES.FAVORITES.RECIPE_SAVED,
         data: favorite,
       });
     } catch (err: unknown) {
       if (err instanceof RecipeNotFoundError) {
-        res.status(404).json({
+        res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
+          message: err.message,
           error: {
             code: err.code,
             message: err.message,
@@ -85,11 +96,12 @@ export class FavoriteController {
         return;
       }
 
-      res.status(500).json({
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
         success: false,
+        message: ERROR_MESSAGES.FAVORITES.SAVE_FAILED,
         error: {
-          code: 'FAVORITE_SAVE_FAILED',
-          message: 'Failed to save recipe to favorites. Please try again.',
+          code: ERROR_CODES.FAVORITE_SAVE_FAILED,
+          message: ERROR_MESSAGES.FAVORITES.SAVE_FAILED,
         },
       });
     }
@@ -101,11 +113,12 @@ export class FavoriteController {
   public static async removeFavorite(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      res.status(401).json({
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
+        message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_REMOVE,
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required to remove favorites.',
+          code: ERROR_CODES.UNAUTHORIZED,
+          message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_REMOVE,
         },
       });
       return;
@@ -113,11 +126,13 @@ export class FavoriteController {
 
     const validation = RecipeValidator.validateRecipeId(req.params.recipeId);
     if (!validation.isValid || validation.sanitized === undefined) {
-      res.status(400).json({
+      const message = validation.errors?.[0] || ERROR_MESSAGES.FAVORITES.RECIPE_ID_REQUIRED;
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
+        message,
         error: {
-          code: 'INVALID_RECIPE_ID',
-          message: validation.errors?.[0] || 'Valid recipeId is required.',
+          code: ERROR_CODES.INVALID_RECIPE_ID,
+          message,
         },
       });
       return;
@@ -125,19 +140,20 @@ export class FavoriteController {
 
     const removed = await FavoriteService.removeFavorite(userId, validation.sanitized);
     if (!removed) {
-      res.status(404).json({
+      res.status(HTTP_STATUS.NOT_FOUND).json({
         success: false,
+        message: ERROR_MESSAGES.FAVORITES.NOT_FOUND,
         error: {
-          code: 'FAVORITE_NOT_FOUND',
-          message: 'Favorite recipe not found in your saved list.',
+          code: ERROR_CODES.FAVORITE_NOT_FOUND,
+          message: ERROR_MESSAGES.FAVORITES.NOT_FOUND,
         },
       });
       return;
     }
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: 'Recipe removed from favorites.',
+      message: SUCCESS_MESSAGES.FAVORITES.RECIPE_REMOVED,
     });
   }
 
@@ -147,11 +163,12 @@ export class FavoriteController {
   public static async checkIsFavorite(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      res.status(401).json({
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
+        message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_CHECK,
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required.',
+          code: ERROR_CODES.UNAUTHORIZED,
+          message: ERROR_MESSAGES.FAVORITES.AUTH_REQUIRED_CHECK,
         },
       });
       return;
@@ -159,11 +176,13 @@ export class FavoriteController {
 
     const validation = RecipeValidator.validateRecipeId(req.params.recipeId);
     if (!validation.isValid || validation.sanitized === undefined) {
-      res.status(400).json({
+      const message = validation.errors?.[0] || ERROR_MESSAGES.FAVORITES.RECIPE_ID_REQUIRED;
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
+        message,
         error: {
-          code: 'INVALID_RECIPE_ID',
-          message: validation.errors?.[0] || 'Valid recipeId is required.',
+          code: ERROR_CODES.INVALID_RECIPE_ID,
+          message,
         },
       });
       return;
@@ -171,7 +190,7 @@ export class FavoriteController {
 
     const isFav = await FavoriteService.isFavorite(userId, validation.sanitized);
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       data: {
         isFavorite: isFav,

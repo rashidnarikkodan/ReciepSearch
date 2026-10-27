@@ -1,4 +1,5 @@
 import { Schema, model, type Document, type Types } from 'mongoose';
+import { ERROR_MESSAGES } from '../constants/index.js';
 
 export interface IFavorite extends Document {
   userId: Types.ObjectId;
@@ -15,19 +16,19 @@ const favoriteSchema = new Schema<IFavorite>(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'User ID is required'],
+      required: [true, ERROR_MESSAGES.FAVORITES.USER_ID_REQUIRED],
       index: true,
     },
     recipeId: {
       type: Number,
-      required: [true, 'Recipe ID is required'],
-      min: [1, 'Recipe ID must be a positive integer'],
+      required: [true, ERROR_MESSAGES.FAVORITES.RECIPE_ID_REQUIRED],
+      min: [1, ERROR_MESSAGES.VALIDATION.RECIPE_ID_POSITIVE_INT],
     },
     title: {
       type: String,
-      required: [true, 'Recipe title is required'],
+      required: [true, ERROR_MESSAGES.FAVORITES.RECIPE_TITLE_REQUIRED],
       trim: true,
-      maxlength: [200, 'Title cannot exceed 200 characters'],
+      maxlength: [200, ERROR_MESSAGES.FAVORITES.TITLE_TOO_LONG(200)],
     },
     image: {
       type: String,
@@ -35,11 +36,11 @@ const favoriteSchema = new Schema<IFavorite>(
     },
     readyInMinutes: {
       type: Number,
-      min: [0, 'Preparation time cannot be negative'],
+      min: [0, ERROR_MESSAGES.FAVORITES.TIME_NEGATIVE],
     },
     servings: {
       type: Number,
-      min: [1, 'Servings must be at least 1'],
+      min: [1, ERROR_MESSAGES.FAVORITES.SERVINGS_MIN],
     },
   },
   {

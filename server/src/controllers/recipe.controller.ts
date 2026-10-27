@@ -1,7 +1,16 @@
 import type { Request, Response } from 'express';
 import { RecipeValidator } from '../validators/recipe.validator.js';
 import { RecipeService } from '../services/recipe.service.js';
-import { ProviderError, RecipeNotFoundError, ProviderRateLimitError } from '../services/provider/spoonacular.service.js';
+import {
+  ProviderError,
+  RecipeNotFoundError,
+  ProviderRateLimitError,
+} from '../services/provider/spoonacular.service.js';
+import {
+  HTTP_STATUS,
+  ERROR_CODES,
+  ERROR_MESSAGES,
+} from '../constants/index.js';
 
 export class RecipeController {
   /**
@@ -11,11 +20,12 @@ export class RecipeController {
     const validation = RecipeValidator.validateSearchQuery(req.query);
 
     if (!validation.isValid || !validation.sanitized) {
-      res.status(400).json({
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
+        message: ERROR_MESSAGES.RECIPE.INVALID_QUERY_PARAMS,
         error: {
-          code: 'INVALID_QUERY_PARAMETERS',
-          message: 'Invalid search or filter parameters provided.',
+          code: ERROR_CODES.INVALID_QUERY_PARAMETERS,
+          message: ERROR_MESSAGES.RECIPE.INVALID_QUERY_PARAMS,
           details: validation.errors,
         },
       });
@@ -25,7 +35,7 @@ export class RecipeController {
     try {
       const result = await RecipeService.listRecipes(validation.sanitized);
 
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         success: true,
         data: result.recipes,
         pagination: result.pagination,
@@ -35,8 +45,9 @@ export class RecipeController {
         if (err.retryAfter) {
           res.setHeader('Retry-After', err.retryAfter);
         }
-        res.status(429).json({
+        res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
           success: false,
+          message: err.message,
           error: {
             code: err.code,
             message: err.message,
@@ -48,6 +59,7 @@ export class RecipeController {
       if (err instanceof ProviderError) {
         res.status(err.statusCode).json({
           success: false,
+          message: err.message,
           error: {
             code: err.code,
             message: err.message,
@@ -56,11 +68,12 @@ export class RecipeController {
         return;
       }
 
-      res.status(502).json({
+      res.status(HTTP_STATUS.BAD_GATEWAY).json({
         success: false,
+        message: ERROR_MESSAGES.RECIPE.SEARCH_UNAVAILABLE,
         error: {
-          code: 'RECIPE_PROVIDER_UNAVAILABLE',
-          message: 'Recipe search is temporarily unavailable. Please try again later.',
+          code: ERROR_CODES.RECIPE_PROVIDER_UNAVAILABLE,
+          message: ERROR_MESSAGES.RECIPE.SEARCH_UNAVAILABLE,
         },
       });
     }
@@ -73,11 +86,13 @@ export class RecipeController {
     const validation = RecipeValidator.validateRecipeId(req.params.id);
 
     if (!validation.isValid || validation.sanitized === undefined) {
-      res.status(400).json({
+      const message = validation.errors?.[0] || ERROR_MESSAGES.RECIPE.INVALID_RECIPE_ID;
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
+        message,
         error: {
-          code: 'INVALID_RECIPE_ID',
-          message: validation.errors?.[0] || 'Recipe ID must be a positive integer.',
+          code: ERROR_CODES.INVALID_RECIPE_ID,
+          message,
         },
       });
       return;
@@ -86,14 +101,15 @@ export class RecipeController {
     try {
       const recipe = await RecipeService.getRecipeDetails(validation.sanitized);
 
-      res.status(200).json({
+      res.status(HTTP_STATUS.OK).json({
         success: true,
         data: recipe,
       });
     } catch (err: unknown) {
       if (err instanceof RecipeNotFoundError) {
-        res.status(404).json({
+        res.status(HTTP_STATUS.NOT_FOUND).json({
           success: false,
+          message: err.message,
           error: {
             code: err.code,
             message: err.message,
@@ -106,8 +122,9 @@ export class RecipeController {
         if (err.retryAfter) {
           res.setHeader('Retry-After', err.retryAfter);
         }
-        res.status(429).json({
+        res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
           success: false,
+          message: err.message,
           error: {
             code: err.code,
             message: err.message,
@@ -119,6 +136,7 @@ export class RecipeController {
       if (err instanceof ProviderError) {
         res.status(err.statusCode).json({
           success: false,
+          message: err.message,
           error: {
             code: err.code,
             message: err.message,
@@ -127,11 +145,12 @@ export class RecipeController {
         return;
       }
 
-      res.status(502).json({
+      res.status(HTTP_STATUS.BAD_GATEWAY).json({
         success: false,
+        message: ERROR_MESSAGES.RECIPE.DETAILS_UNAVAILABLE,
         error: {
-          code: 'RECIPE_PROVIDER_UNAVAILABLE',
-          message: 'Recipe details are temporarily unavailable. Please try again later.',
+          code: ERROR_CODES.RECIPE_PROVIDER_UNAVAILABLE,
+          message: ERROR_MESSAGES.RECIPE.DETAILS_UNAVAILABLE,
         },
       });
     }
