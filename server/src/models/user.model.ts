@@ -1,4 +1,5 @@
 import { Schema, model, type Document } from 'mongoose';
+import { ERROR_MESSAGES } from '../constants/index.js';
 
 export interface IUser extends Document {
   name: string;
@@ -13,24 +14,24 @@ const userSchema = new Schema<IUser>(
   {
     name: {
       type: String,
-      required: [true, 'Name is required'],
+      required: [true, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
       trim: true,
-      minlength: [2, 'Name must be at least 2 characters long'],
-      maxlength: [50, 'Name cannot exceed 50 characters'],
+      minlength: [2, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
+      maxlength: [50, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, ERROR_MESSAGES.AUTH.EMAIL_REQUIRED],
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please provide a valid email address'],
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, ERROR_MESSAGES.AUTH.EMAIL_INVALID],
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
-      minlength: [6, 'Password must be at least 6 characters long'],
-      maxlength: [128, 'Password cannot exceed 128 characters'],
+      required: [true, ERROR_MESSAGES.AUTH.PASSWORD_REQUIRED],
+      minlength: [6, ERROR_MESSAGES.AUTH.PASSWORD_LENGTH],
+      maxlength: [128, ERROR_MESSAGES.AUTH.PASSWORD_LENGTH],
     },
     role: {
       type: String,

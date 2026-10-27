@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
 import type { JwtUserPayload } from '../services/auth.service.js';
+import { HTTP_STATUS, ERROR_CODES, ERROR_MESSAGES } from '../constants/index.js';
 
 export interface AuthenticatedUser {
   id: string;
@@ -37,9 +38,13 @@ export async function authenticateToken(
     }
 
     if (!token) {
-      res.status(401).json({
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: 'Authentication required. Please sign in.',
+        message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
+        error: {
+          code: ERROR_CODES.UNAUTHORIZED,
+          message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
+        },
       });
       return;
     }
@@ -51,9 +56,18 @@ export async function authenticateToken(
       decoded = jwt.verify(token, secret) as JwtUserPayload;
     } catch (err: unknown) {
       const isExpired = err instanceof jwt.TokenExpiredError;
-      res.status(401).json({
+      const message = isExpired
+        ? ERROR_MESSAGES.AUTH.TOKEN_EXPIRED
+        : ERROR_MESSAGES.AUTH.INVALID_TOKEN;
+      const code = isExpired ? ERROR_CODES.TOKEN_EXPIRED : ERROR_CODES.INVALID_TOKEN;
+
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
-        message: isExpired ? 'Session has expired. Please sign in again.' : 'Invalid authentication token.',
+        message,
+        error: {
+          code,
+          message,
+        },
       });
       return;
     }
@@ -61,9 +75,13 @@ export async function authenticateToken(
     if (mongoose.connection.readyState === 1) {
       const user = await User.findById(decoded.userId).select('-password');
       if (!user) {
-        res.status(401).json({
+        res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
-          message: 'User belonging to this token no longer exists.',
+          message: ERROR_MESSAGES.AUTH.USER_NO_LONGER_EXISTS,
+          error: {
+            code: ERROR_CODES.USER_NOT_FOUND,
+            message: ERROR_MESSAGES.AUTH.USER_NO_LONGER_EXISTS,
+          },
         });
         return;
       }

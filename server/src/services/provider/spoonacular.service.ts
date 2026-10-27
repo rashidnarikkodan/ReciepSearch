@@ -4,6 +4,11 @@ import type {
   RecipeDetail,
   PaginationMeta,
 } from '../../types/recipe.types.js';
+import {
+  HTTP_STATUS,
+  ERROR_CODES,
+  ERROR_MESSAGES,
+} from '../../constants/index.js';
 
 export interface ProviderSearchResult {
   recipes: RecipeSummary[];
@@ -14,7 +19,11 @@ export class ProviderError extends Error {
   public statusCode: number;
   public code: string;
 
-  constructor(message: string, statusCode = 502, code = 'PROVIDER_ERROR') {
+  constructor(
+    message: string,
+    statusCode: number = HTTP_STATUS.BAD_GATEWAY,
+    code: string = ERROR_CODES.PROVIDER_ERROR
+  ) {
     super(message);
     this.name = 'ProviderError';
     this.statusCode = statusCode;
@@ -24,7 +33,11 @@ export class ProviderError extends Error {
 
 export class RecipeNotFoundError extends ProviderError {
   constructor(recipeId: number) {
-    super(`Recipe with ID ${recipeId} was not found.`, 404, 'RECIPE_NOT_FOUND');
+    super(
+      ERROR_MESSAGES.RECIPE.NOT_FOUND(recipeId),
+      HTTP_STATUS.NOT_FOUND,
+      ERROR_CODES.RECIPE_NOT_FOUND
+    );
     this.name = 'RecipeNotFoundError';
   }
 }
@@ -33,7 +46,11 @@ export class ProviderRateLimitError extends ProviderError {
   public retryAfter?: number;
 
   constructor(retryAfter?: number) {
-    super('Recipe provider rate limit or quota exceeded. Please try again later.', 429, 'RATE_LIMIT_EXCEEDED');
+    super(
+      ERROR_MESSAGES.RECIPE.PROVIDER_RATE_LIMIT,
+      HTTP_STATUS.TOO_MANY_REQUESTS,
+      ERROR_CODES.RATE_LIMIT_EXCEEDED
+    );
     this.name = 'ProviderRateLimitError';
     this.retryAfter = retryAfter;
   }
@@ -296,19 +313,27 @@ export class SpoonacularService {
         return (await response.json()) as T;
       }
 
-      if (response.status === 404) {
+      if (response.status === HTTP_STATUS.NOT_FOUND) {
         if (recipeIdFor404) throw new RecipeNotFoundError(recipeIdFor404);
-        throw new ProviderError('Resource not found on recipe provider.', 404, 'NOT_FOUND');
+        throw new ProviderError(
+          ERROR_MESSAGES.RECIPE.PROVIDER_RESOURCE_NOT_FOUND,
+          HTTP_STATUS.NOT_FOUND,
+          ERROR_CODES.NOT_FOUND
+        );
       }
 
-      if (response.status === 429) {
+      if (response.status === HTTP_STATUS.TOO_MANY_REQUESTS) {
         const retryAfterHeader = response.headers.get('Retry-After');
         const retryAfter = retryAfterHeader ? parseInt(retryAfterHeader, 10) : undefined;
         throw new ProviderRateLimitError(Number.isFinite(retryAfter) ? retryAfter : undefined);
       }
 
-      if (response.status === 401 || response.status === 403) {
-        throw new ProviderError('Recipe provider authentication failed. Please verify API configuration.', 502, 'PROVIDER_AUTH_ERROR');
+      if (response.status === HTTP_STATUS.UNAUTHORIZED || response.status === HTTP_STATUS.FORBIDDEN) {
+        throw new ProviderError(
+          ERROR_MESSAGES.RECIPE.PROVIDER_AUTH_FAILED,
+          HTTP_STATUS.BAD_GATEWAY,
+          ERROR_CODES.PROVIDER_AUTH_ERROR
+        );
       }
 
       // Retry on 5xx transient server errors
@@ -317,7 +342,11 @@ export class SpoonacularService {
         return this.fetchWithRetry<T>(url, recipeIdFor404, attempt + 1);
       }
 
-      throw new ProviderError(`Recipe provider responded with status ${response.status}.`, 502, 'PROVIDER_UNAVAILABLE');
+      throw new ProviderError(
+        ERROR_MESSAGES.RECIPE.PROVIDER_STATUS_ERROR(response.status),
+        HTTP_STATUS.BAD_GATEWAY,
+        ERROR_CODES.PROVIDER_UNAVAILABLE
+      );
     } catch (err: unknown) {
       clearTimeout(timeoutId);
 
@@ -330,7 +359,11 @@ export class SpoonacularService {
           await new Promise((res) => setTimeout(res, attempt * 500));
           return this.fetchWithRetry<T>(url, recipeIdFor404, attempt + 1);
         }
-        throw new ProviderError('Recipe provider request timed out. Please try again.', 504, 'GATEWAY_TIMEOUT');
+        throw new ProviderError(
+          ERROR_MESSAGES.RECIPE.PROVIDER_TIMEOUT,
+          HTTP_STATUS.GATEWAY_TIMEOUT,
+          ERROR_CODES.GATEWAY_TIMEOUT
+        );
       }
 
       // Retry network failures
@@ -339,7 +372,11 @@ export class SpoonacularService {
         return this.fetchWithRetry<T>(url, recipeIdFor404, attempt + 1);
       }
 
-      throw new ProviderError('Failed to communicate with external recipe provider.', 503, 'SERVICE_UNAVAILABLE');
+      throw new ProviderError(
+        ERROR_MESSAGES.RECIPE.PROVIDER_COMMUNICATION_FAILED,
+        HTTP_STATUS.SERVICE_UNAVAILABLE,
+        ERROR_CODES.SERVICE_UNAVAILABLE
+      );
     }
   }
 

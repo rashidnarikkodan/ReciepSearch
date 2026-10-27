@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
+import { HTTP_STATUS, ERROR_CODES, ERROR_MESSAGES } from '../constants/index.js';
 
 export interface RegisterDTO {
   name: string;
@@ -32,6 +33,11 @@ export interface JwtUserPayload {
   role: 'user';
 }
 
+interface ServiceError extends Error {
+  statusCode?: number;
+  code?: string;
+}
+
 export class AuthService {
   private static readonly SALT_ROUNDS = 10;
 
@@ -46,8 +52,9 @@ export class AuthService {
 
     const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
-      const error = new Error('An account with this email already exists');
-      (error as Error & { statusCode?: number }).statusCode = 409;
+      const error = new Error(ERROR_MESSAGES.AUTH.EMAIL_ALREADY_EXISTS) as ServiceError;
+      error.statusCode = HTTP_STATUS.CONFLICT;
+      error.code = ERROR_CODES.USER_ALREADY_EXISTS;
       throw error;
     }
 
@@ -83,15 +90,17 @@ export class AuthService {
 
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
-      const error = new Error('Invalid email or password');
-      (error as Error & { statusCode?: number }).statusCode = 401;
+      const error = new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS) as ServiceError;
+      error.statusCode = HTTP_STATUS.UNAUTHORIZED;
+      error.code = ERROR_CODES.UNAUTHORIZED;
       throw error;
     }
 
     const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
     if (!isPasswordValid) {
-      const error = new Error('Invalid email or password');
-      (error as Error & { statusCode?: number }).statusCode = 401;
+      const error = new Error(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS) as ServiceError;
+      error.statusCode = HTTP_STATUS.UNAUTHORIZED;
+      error.code = ERROR_CODES.UNAUTHORIZED;
       throw error;
     }
 
@@ -116,8 +125,9 @@ export class AuthService {
   public static async getProfile(userId: string): Promise<AuthUserPayload> {
     const user = await User.findById(userId).select('-password');
     if (!user) {
-      const error = new Error('User not found');
-      (error as Error & { statusCode?: number }).statusCode = 404;
+      const error = new Error(ERROR_MESSAGES.AUTH.USER_NOT_FOUND) as ServiceError;
+      error.statusCode = HTTP_STATUS.NOT_FOUND;
+      error.code = ERROR_CODES.USER_NOT_FOUND;
       throw error;
     }
 
