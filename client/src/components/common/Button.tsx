@@ -25,16 +25,18 @@ export function Button({
     'inline-flex items-center justify-center font-semibold transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none';
 
   const sizeStyles = {
-    sm: 'py-1.5 px-3 text-xs rounded-md',
-    md: 'py-2.5 px-4 text-sm rounded-lg',
+    sm: 'py-1.5 px-3 text-xs rounded-lg',
+    md: 'py-2 px-4 text-xs sm:text-sm rounded-lg',
   }[size];
+
 
   const variantStyles = {
     primary: 'bg-[#365B45] text-white hover:bg-[#2b4937]',
-    secondary: 'bg-[#FAFAF7] text-[#242824] border border-[#E3E6E0] hover:bg-[#E3E6E0]',
-    danger: 'bg-[#FEF3F2] text-[#B42318] border border-[#FECDCA] hover:bg-[#FEE4E2]',
-    ghost: 'text-[#737873] hover:text-[#242824] hover:bg-[#FAFAF7]',
+    secondary: 'bg-[#FFFFFF] text-[#242824] border border-[#DDE0DA] hover:border-[#365B45]',
+    danger: 'bg-[#FFFFFF] text-[#B42318] border border-[#FECDCA] hover:bg-[#FEF3F2]',
+    ghost: 'text-[#737873] hover:text-[#242824]',
   }[variant];
+
 
   const widthStyle = fullWidth ? 'w-full' : '';
 
