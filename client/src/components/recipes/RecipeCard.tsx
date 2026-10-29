@@ -24,11 +24,6 @@ export function RecipeCard({
   const image = recipe.image;
   const readyInMinutes = recipe.readyInMinutes;
   const servings = recipe.servings;
-  const rawSummary = 'summary' in recipe ? recipe.summary : '';
-
-  const cleanSummary = rawSummary
-    ? rawSummary.replace(/<[^>]*>?/gm, '').trim()
-    : '';
 
   const favorited = isFavorite(recipeId);
 
@@ -66,7 +61,7 @@ export function RecipeCard({
     <article className="group relative flex flex-col bg-[#FFFFFF] border border-[#E6E8E3] rounded-lg hover:border-[#CBD0C5] transition-colors overflow-hidden">
       <Link
         to={`/recipes/${recipeId}`}
-        className="block relative aspect-4/3 sm:aspect-16/10 w-full overflow-hidden bg-[#F6F7F5]"
+        className="block relative aspect-4/3 w-full overflow-hidden bg-[#F6F7F5]"
       >
         {image && !imageError ? (
           <img
@@ -77,14 +72,14 @@ export function RecipeCard({
             className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-200"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center text-[#737873] p-4">
-            <UtensilsCrossed className="w-6 h-6 mb-1 text-[#A3A8A0]" />
-            <span className="text-[11px]">No preview</span>
+          <div className="w-full h-full flex flex-col items-center justify-center text-[#737873] p-3">
+            <UtensilsCrossed className="w-5 h-5 mb-1 text-[#A3A8A0]" />
+            <span className="text-[10px]">No preview</span>
           </div>
         )}
 
         {primaryTag && (
-          <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-medium capitalize bg-white/95 text-[#242824] shadow-xs">
+          <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-medium capitalize bg-white/95 text-[#242824] shadow-xs max-w-[70%] truncate">
             {primaryTag}
           </span>
         )}
@@ -94,7 +89,7 @@ export function RecipeCard({
           onClick={handleFavoriteClick}
           disabled={isToggling}
           aria-label={favorited ? 'Remove from favorites' : 'Save to favorites'}
-          className={`absolute top-2.5 right-2.5 p-1.5 rounded-md bg-white/95 text-[#242824] shadow-xs hover:text-[#B42318] transition-colors cursor-pointer ${
+          className={`absolute top-2 right-2 p-1 sm:p-1.5 rounded-md bg-white/95 text-[#242824] shadow-xs hover:text-[#B42318] transition-colors cursor-pointer ${
             favorited ? 'text-[#B42318]' : ''
           }`}
         >
@@ -108,17 +103,17 @@ export function RecipeCard({
         </button>
       </Link>
 
-      <div className="p-3.5 flex-1 flex flex-col justify-between">
+      <div className="p-2.5 sm:p-3.5 flex-1 flex flex-col justify-between">
         <div>
           {(readyInMinutes || servings || healthScore) ? (
-            <div className="text-[11px] text-[#737873] font-medium mb-1 flex items-center gap-1.5 flex-wrap">
-              {readyInMinutes ? <span>{readyInMinutes} mins</span> : null}
+            <div className="text-[10px] sm:text-[11px] text-[#737873] font-medium mb-1 flex items-center gap-1 sm:gap-1.5 flex-wrap">
+              {readyInMinutes ? <span>{readyInMinutes}m</span> : null}
               {readyInMinutes && servings ? <span>·</span> : null}
-              {servings ? <span>{servings} {servings === 1 ? 'serving' : 'servings'}</span> : null}
+              {servings ? <span>{servings} {servings === 1 ? 'srv' : 'srvs'}</span> : null}
               {healthScore ? (
                 <>
                   <span>·</span>
-                  <span className="text-[#365B45]">Score {healthScore}</span>
+                  <span className="text-[#365B45] font-semibold">{healthScore}%</span>
                 </>
               ) : null}
             </div>
@@ -126,19 +121,13 @@ export function RecipeCard({
 
           <Link
             to={`/recipes/${recipeId}`}
-            className="block text-sm font-semibold text-[#242824] hover:text-[#365B45] transition-colors line-clamp-2 leading-snug"
+            className="block text-xs sm:text-sm font-semibold text-[#242824] hover:text-[#365B45] transition-colors line-clamp-2 leading-snug"
           >
             {title}
           </Link>
-
-          {cleanSummary && (
-            <p className="text-xs text-[#737873] mt-1.5 line-clamp-2 leading-relaxed">
-              {cleanSummary}
-            </p>
-          )}
         </div>
 
-        <div className="pt-3 mt-3 flex items-center justify-between text-[11px] text-[#737873]">
+        <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 flex items-center justify-between text-[10px] sm:text-[11px] text-[#737873] border-t border-[#F0F2ED]">
           <Link
             to={`/recipes/${recipeId}`}
             className="font-medium text-[#365B45] hover:underline"
