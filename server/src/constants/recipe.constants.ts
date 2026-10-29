@@ -1,0 +1,106 @@
+export const SUPPORTED_CUISINES = [
+  'african',
+  'asian',
+  'american',
+  'british',
+  'cajun',
+  'caribbean',
+  'chinese',
+  'eastern european',
+  'european',
+  'french',
+  'german',
+  'greek',
+  'indian',
+  'irish',
+  'italian',
+  'japanese',
+  'jewish',
+  'korean',
+  'latin american',
+  'mediterranean',
+  'mexican',
+  'middle eastern',
+  'nordic',
+  'southern',
+  'spanish',
+  'thai',
+  'vietnamese',
+] as const;
+
+export const SUPPORTED_DIETS = [
+  'gluten free',
+  'ketogenic',
+  'vegetarian',
+  'lacto-vegetarian',
+  'ovo-vegetarian',
+  'vegan',
+  'pescetarian',
+  'paleo',
+  'primal',
+  'low fodmap',
+  'whole30',
+] as const;
+
+export const SUPPORTED_INTOLERANCES = [
+  'dairy',
+  'egg',
+  'gluten',
+  'grain',
+  'peanut',
+  'seafood',
+  'sesame',
+  'shellfish',
+  'soy',
+  'sulfite',
+  'tree nut',
+  'wheat',
+] as const;
+
+export const SUPPORTED_MEAL_TYPES = [
+  'main course',
+  'side dish',
+  'dessert',
+  'appetizer',
+  'salad',
+  'bread',
+  'breakfast',
+  'soup',
+  'beverage',
+  'sauce',
+  'marinade',
+  'fingerfood',
+  'snack',
+  'drink',
+] as const;
+
+export const SUPPORTED_SORT_OPTIONS = [
+  'popularity',
+  'healthiness',
+  'price',
+  'time',
+  'calories',
+  'nutrients',
+  'random',
+  'max-used-ingredients',
+  'min-missing-ingredients',
+] as const;
+
+export const RECIPE_VALIDATION_RULES = {
+  MAX_QUERY_LENGTH: 100,
+  MAX_PAGE: 1000,
+  DEFAULT_PAGE: 1,
+  DEFAULT_LIMIT: 12,
+  MAX_LIMIT: 50,
+  MAX_INGREDIENTS_LIST: 10,
+  MAX_INGREDIENT_LEN: 50,
+  INGREDIENT_REGEX: /^[a-zA-Z0-9\s-]+$/,
+} as const;
+
+export const RECIPE_PROVIDER_CONFIG = {
+  TIMEOUT_MS: 8000,
+  MAX_RETRIES: 2,
+  CACHE_TTL_MS: 5 * 60 * 1000,
+  MAX_CACHE_SIZE: 500,
+  DEFAULT_BASE_URL: 'https://api.spoonacular.com',
+} as const;

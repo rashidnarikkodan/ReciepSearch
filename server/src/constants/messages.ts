@@ -9,6 +9,7 @@ export const ERROR_MESSAGES = {
     EMAIL_ALREADY_EXISTS: 'An account with this email address already exists.',
     INVALID_CREDENTIALS: 'Invalid email or password.',
     UNAUTHORIZED: 'Authentication required. Please sign in.',
+    FORBIDDEN: 'You do not have permission to perform this action.',
     TOKEN_EXPIRED: 'Session has expired. Please sign in again.',
     INVALID_TOKEN: 'Invalid authentication token.',
     USER_NOT_FOUND: 'User not found.',
@@ -33,6 +34,7 @@ export const ERROR_MESSAGES = {
   },
 
   VALIDATION: {
+    INVALID_INPUT: 'Invalid request payload or parameters provided.',
     QUERY_MUST_BE_STRING: 'Search query must be a string.',
     QUERY_TOO_LONG: (max: number): string => `Search query cannot exceed ${max} characters.`,
     PAGE_POSITIVE_INT: 'Page must be a positive integer greater than or equal to 1.',
@@ -73,12 +75,12 @@ export const ERROR_MESSAGES = {
   },
 
   SYSTEM: {
+    NOT_FOUND: 'Requested resource was not found.',
     ROUTE_NOT_FOUND: (method: string, path: string): string =>
       `Cannot ${method} ${path} - Route not found`,
     INTERNAL_SERVER_ERROR: 'Internal Server Error',
   },
 } as const;
-
 
 export const SUCCESS_MESSAGES = {
   AUTH: {
