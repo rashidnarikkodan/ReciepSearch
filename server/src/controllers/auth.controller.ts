@@ -1,135 +1,63 @@
-import type { Request, Response, CookieOptions } from 'express';
-import { AuthService } from '../services/auth.service.js';
+import type { Request, Response } from 'express';
+import type { IUserService, ITokenService } from '../interfaces/index.js';
+import success from '../utils/success.js';
+import { UnauthorizedError } from '../errors/index.js';
 import {
   HTTP_STATUS,
-  ERROR_CODES,
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
+  AUTH_CONSTANTS,
+  getAuthCookieOptions,
 } from '../constants/index.js';
 
-const COOKIE_NAME = 'token';
-
-const cookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-};
-
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export class AuthController {
-  public static async register(req: Request, res: Response): Promise<void> {
-    const { name, email, password } = req.body;
+  constructor(
+    private readonly userService: IUserService,
+    private readonly tokenService: ITokenService
+  ) {}
 
-    if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 50) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: ERROR_MESSAGES.AUTH.NAME_REQUIRED,
-        error: {
-          code: ERROR_CODES.INVALID_INPUT,
-          message: ERROR_MESSAGES.AUTH.NAME_REQUIRED,
-        },
-      });
-      return;
-    }
+  public register = async (req: Request, res: Response): Promise<void> => {
+    const user = await this.userService.register(req.body);
+    const token = await this.tokenService.createToken(user.id);
 
-    if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: ERROR_MESSAGES.AUTH.EMAIL_INVALID,
-        error: {
-          code: ERROR_CODES.INVALID_INPUT,
-          message: ERROR_MESSAGES.AUTH.EMAIL_INVALID,
-        },
-      });
-      return;
-    }
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie(AUTH_CONSTANTS.COOKIE_NAME, token, getAuthCookieOptions(isProduction));
 
-    if (!password || typeof password !== 'string' || password.length < 6 || password.length > 128) {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: ERROR_MESSAGES.AUTH.PASSWORD_LENGTH,
-        error: {
-          code: ERROR_CODES.INVALID_INPUT,
-          message: ERROR_MESSAGES.AUTH.PASSWORD_LENGTH,
-        },
-      });
-      return;
-    }
+    success(res, SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS, HTTP_STATUS.CREATED, { user, token });
+  };
 
-    // Role is strictly enforced as 'user'
-    const result = await AuthService.register({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      password,
-    });
+  public login = async (req: Request, res: Response): Promise<void> => {
+    const user = await this.userService.login(req.body);
+    const token = await this.tokenService.createToken(user.id);
 
-    res.cookie(COOKIE_NAME, result.token, cookieOptions);
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie(AUTH_CONSTANTS.COOKIE_NAME, token, getAuthCookieOptions(isProduction));
 
-    res.status(HTTP_STATUS.CREATED).json({
-      success: true,
-      message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS,
-      data: result,
-    });
-  }
+    success(res, SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS, HTTP_STATUS.OK, { user, token });
+  };
 
-  public static async login(req: Request, res: Response): Promise<void> {
-    const { email, password } = req.body;
-
-    if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
-      res.status(HTTP_STATUS.BAD_REQUEST).json({
-        success: false,
-        message: ERROR_MESSAGES.AUTH.CREDENTIALS_REQUIRED,
-        error: {
-          code: ERROR_CODES.INVALID_INPUT,
-          message: ERROR_MESSAGES.AUTH.CREDENTIALS_REQUIRED,
-        },
-      });
-      return;
-    }
-
-    const result = await AuthService.login({ email, password });
-
-    res.cookie(COOKIE_NAME, result.token, cookieOptions);
-
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS,
-      data: result,
-    });
-  }
-
-  public static async getMe(req: Request, res: Response): Promise<void> {
+  public getMe = async (req: Request, res: Response): Promise<void> => {
     const userId = req.user?.id || req.user?._id;
+
     if (!userId) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        success: false,
-        message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
-        error: {
-          code: ERROR_CODES.UNAUTHORIZED,
-          message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
-        },
-      });
-      return;
+      throw new UnauthorizedError(ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
 
-    const profile = await AuthService.getProfile(userId);
+    const user = await this.userService.getMe(userId);
 
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      data: {
-        user: profile,
-      },
-    });
-  }
+    success(res, undefined, HTTP_STATUS.OK, { user });
+  };
 
-  public static async logout(_req: Request, res: Response): Promise<void> {
-    res.clearCookie(COOKIE_NAME, cookieOptions);
+  public logout = async (req: Request, res: Response): Promise<void> => {
+    const token = req.cookies?.[AUTH_CONSTANTS.COOKIE_NAME];
 
-    res.status(HTTP_STATUS.OK).json({
-      success: true,
-      message: SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS,
-    });
-  }
+    if (token) {
+      await this.tokenService.revokeToken(token);
+    }
+
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie(AUTH_CONSTANTS.COOKIE_NAME, getAuthCookieOptions(isProduction));
+
+    success(res, SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS, HTTP_STATUS.OK);
+  };
 }
