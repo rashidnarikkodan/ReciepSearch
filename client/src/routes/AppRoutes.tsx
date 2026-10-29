@@ -1,47 +1,28 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { AuthPage } from '../pages/AuthPage';
 import { RecipePage } from '../pages/RecipePage';
+import { RecipeDetailPage } from '../pages/RecipeDetailPage';
+import { FavoritesPage } from '../pages/FavoritesPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
 import { ProtectedRoute } from './ProtectedRoute';
-
-import { LoadingScreen } from '../components/common/LoadingScreen';
-
-function RootRedirect() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <LoadingScreen message="Checking authentication..." />;
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to="/recipe" replace />;
-  }
-
-  return <Navigate to="/auth" replace />;
-}
 
 export function AppRoutes() {
   return (
     <Routes>
-      {/* Root redirect: inspects authentication and routes to /recipe or /auth */}
-      <Route path="/" element={<RootRedirect />} />
-
-      {/* Auth page */}
+      <Route path="/" element={<Navigate to="/recipes" replace />} />
       <Route path="/auth" element={<AuthPage />} />
-
-      {/* Protected recipe destination */}
+      <Route path="/recipes" element={<RecipePage />} />
+      <Route path="/recipe" element={<Navigate to="/recipes" replace />} />
+      <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+      <Route path="/recipe/:id" element={<RecipeDetailPage />} />
       <Route
-        path="/recipe"
+        path="/favorites"
         element={
           <ProtectedRoute>
-            <RecipePage />
+            <FavoritesPage />
           </ProtectedRoute>
         }
       />
-      <Route path="/recipes" element={<Navigate to="/recipe" replace />} />
-
-      {/* 404 Not Found Page */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

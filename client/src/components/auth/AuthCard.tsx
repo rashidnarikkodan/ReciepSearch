@@ -19,15 +19,14 @@ export function AuthCard({
 
   return (
     <div className={`w-full ${className}`}>
-      {/* Tab Switcher */}
-      <div className="grid grid-cols-2 p-1 mb-6 rounded-lg bg-[#FAFAF7] border border-[#E3E6E0]">
+      <div className="flex border-b border-[#EBECE8] mb-5">
         <button
           type="button"
           onClick={() => setActiveTab('login')}
-          className={`py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+          className={`pb-2 px-3 text-xs font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
             activeTab === 'login'
-              ? 'bg-[#FFFFFF] text-[#242824] border border-[#E3E6E0]'
-              : 'text-[#737873] hover:text-[#242824]'
+              ? 'text-[#242824] font-semibold border-[#365B45]'
+              : 'text-[#737873] border-transparent hover:text-[#242824]'
           }`}
         >
           Sign in
@@ -35,17 +34,16 @@ export function AuthCard({
         <button
           type="button"
           onClick={() => setActiveTab('register')}
-          className={`py-2 text-sm font-medium rounded-md transition-colors cursor-pointer ${
+          className={`pb-2 px-3 text-xs font-medium border-b-2 -mb-px transition-colors cursor-pointer ${
             activeTab === 'register'
-              ? 'bg-[#FFFFFF] text-[#242824] border border-[#E3E6E0]'
-              : 'text-[#737873] hover:text-[#242824]'
+              ? 'text-[#242824] font-semibold border-[#365B45]'
+              : 'text-[#737873] border-transparent hover:text-[#242824]'
           }`}
         >
           Create account
         </button>
       </div>
 
-      {/* Form Content */}
       {activeTab === 'login' ? (
         <LoginForm
           onSwitchToRegister={() => setActiveTab('register')}

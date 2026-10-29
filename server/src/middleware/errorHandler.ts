@@ -1,25 +1,45 @@
 import type { Request, Response, NextFunction } from 'express';
+import { HTTP_STATUS, ERROR_CODES, ERROR_MESSAGES } from '../constants/index.js';
+import { AppError, NotFoundError, TooManyRequestsError } from '../errors/index.js';
 
-interface AppError extends Error {
-  statusCode?: number;
-}
-
-export function notFoundHandler(req: Request, res: Response, _next: NextFunction): void {
-  res.status(404).json({
-    success: false,
-    message: `Cannot ${req.method} ${req.originalUrl} - Route not found`,
-  });
+export function notFoundHandler(req: Request, _res: Response, _next: NextFunction): void {
+  throw new NotFoundError(
+    ERROR_MESSAGES.SYSTEM.ROUTE_NOT_FOUND(req.method, req.originalUrl),
+    ERROR_CODES.ROUTE_NOT_FOUND
+  );
 }
 
 export function errorHandler(
-  err: AppError,
-  _req: Request,
+  err: Error | AppError,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void {
-  const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
+  console.error(`[Error] ${req.method} ${req.originalUrl}:`, err);
+
+  if (err instanceof AppError) {
+    if (err instanceof TooManyRequestsError && err.retryAfter) {
+      res.setHeader('Retry-After', err.retryAfter);
+    }
+
+    res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+      error: {
+        code: err.code,
+        message: err.message,
+        ...(err.details !== undefined && { details: err.details }),
+      },
+    });
+    return;
+  }
+
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
     success: false,
-    message: err.message || 'Internal Server Error',
+    message: ERROR_MESSAGES.SYSTEM.INTERNAL_SERVER_ERROR,
+    error: {
+      code: ERROR_CODES.INTERNAL_SERVER_ERROR,
+      message: ERROR_MESSAGES.SYSTEM.INTERNAL_SERVER_ERROR,
+    },
   });
 }

@@ -1,5 +1,11 @@
 import type { Request, Response, CookieOptions } from 'express';
 import { AuthService } from '../services/auth.service.js';
+import {
+  HTTP_STATUS,
+  ERROR_CODES,
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '../constants/index.js';
 
 const COOKIE_NAME = 'token';
 
@@ -17,25 +23,37 @@ export class AuthController {
     const { name, email, password } = req.body;
 
     if (!name || typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 50) {
-      res.status(400).json({
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: 'Name is required and must be between 2 and 50 characters.',
+        message: ERROR_MESSAGES.AUTH.NAME_REQUIRED,
+        error: {
+          code: ERROR_CODES.INVALID_INPUT,
+          message: ERROR_MESSAGES.AUTH.NAME_REQUIRED,
+        },
       });
       return;
     }
 
     if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
-      res.status(400).json({
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: 'Please provide a valid email address.',
+        message: ERROR_MESSAGES.AUTH.EMAIL_INVALID,
+        error: {
+          code: ERROR_CODES.INVALID_INPUT,
+          message: ERROR_MESSAGES.AUTH.EMAIL_INVALID,
+        },
       });
       return;
     }
 
     if (!password || typeof password !== 'string' || password.length < 6 || password.length > 128) {
-      res.status(400).json({
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: 'Password must be between 6 and 128 characters.',
+        message: ERROR_MESSAGES.AUTH.PASSWORD_LENGTH,
+        error: {
+          code: ERROR_CODES.INVALID_INPUT,
+          message: ERROR_MESSAGES.AUTH.PASSWORD_LENGTH,
+        },
       });
       return;
     }
@@ -49,9 +67,9 @@ export class AuthController {
 
     res.cookie(COOKIE_NAME, result.token, cookieOptions);
 
-    res.status(201).json({
+    res.status(HTTP_STATUS.CREATED).json({
       success: true,
-      message: 'Account registered successfully',
+      message: SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS,
       data: result,
     });
   }
@@ -60,9 +78,13 @@ export class AuthController {
     const { email, password } = req.body;
 
     if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
-      res.status(400).json({
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success: false,
-        message: 'Email and password are required.',
+        message: ERROR_MESSAGES.AUTH.CREDENTIALS_REQUIRED,
+        error: {
+          code: ERROR_CODES.INVALID_INPUT,
+          message: ERROR_MESSAGES.AUTH.CREDENTIALS_REQUIRED,
+        },
       });
       return;
     }
@@ -71,9 +93,9 @@ export class AuthController {
 
     res.cookie(COOKIE_NAME, result.token, cookieOptions);
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: 'Sign in successful',
+      message: SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS,
       data: result,
     });
   }
@@ -81,13 +103,20 @@ export class AuthController {
   public static async getMe(req: Request, res: Response): Promise<void> {
     const userId = req.user?.id || req.user?._id;
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Unauthorized. Please sign in.' });
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        success: false,
+        message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
+        error: {
+          code: ERROR_CODES.UNAUTHORIZED,
+          message: ERROR_MESSAGES.AUTH.UNAUTHORIZED,
+        },
+      });
       return;
     }
 
     const profile = await AuthService.getProfile(userId);
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       data: {
         user: profile,
@@ -98,9 +127,9 @@ export class AuthController {
   public static async logout(_req: Request, res: Response): Promise<void> {
     res.clearCookie(COOKIE_NAME, cookieOptions);
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
-      message: 'Signed out successfully',
+      message: SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS,
     });
   }
 }

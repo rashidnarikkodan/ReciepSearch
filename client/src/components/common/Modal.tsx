@@ -35,33 +35,29 @@ export function Modal({
       aria-modal="true"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto"
     >
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/40"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Surface Card Modal */}
       <div
-        className={`relative w-full ${maxWidth} rounded-xl bg-[#FFFFFF] border border-[#E3E6E0] z-10 overflow-hidden`}
+        className={`relative w-full ${maxWidth} rounded-md bg-[#FFFFFF] border border-[#E3E6E0] z-10 overflow-hidden shadow-sm`}
       >
-        {/* Header */}
         {title && (
-          <div className="px-6 py-4 flex items-center justify-between border-b border-[#E3E6E0] bg-[#FFFFFF]">
+          <div className="px-5 py-3.5 flex items-center justify-between border-b border-[#EBECE8] bg-[#FFFFFF]">
             <div className="text-sm font-bold text-[#242824]">{title}</div>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close modal"
-              className="w-7 h-7 rounded-md text-[#737873] hover:text-[#242824] hover:bg-[#FAFAF7] flex items-center justify-center transition-colors cursor-pointer"
+              className="w-6 h-6 rounded text-[#737873] hover:text-[#242824] flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
         )}
 
-        {/* Content */}
         {children}
       </div>
     </div>
