@@ -1,23 +1,25 @@
-import { Schema, model, type Document } from 'mongoose';
-import { ERROR_MESSAGES } from '../constants/index.js';
+import { Document, Schema, model } from 'mongoose';
+import { ERROR_MESSAGES, AUTH_CONSTANTS } from '../constants/index.js';
+import { UserRole } from '../types/auth.types.js';
 
-export interface IUser extends Document {
+
+export interface IUserDocument extends Document {
   name: string;
   email: string;
   password: string;
-  role: 'user';
+  role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUserDocument>(
   {
     name: {
       type: String,
       required: [true, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
       trim: true,
-      minlength: [2, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
-      maxlength: [50, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
+      minlength: [AUTH_CONSTANTS.MIN_NAME_LENGTH, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
+      maxlength: [AUTH_CONSTANTS.MAX_NAME_LENGTH, ERROR_MESSAGES.AUTH.NAME_REQUIRED],
     },
     email: {
       type: String,
@@ -25,13 +27,13 @@ const userSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
-      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, ERROR_MESSAGES.AUTH.EMAIL_INVALID],
+      match: [AUTH_CONSTANTS.EMAIL_REGEX, ERROR_MESSAGES.AUTH.EMAIL_INVALID],
     },
     password: {
       type: String,
       required: [true, ERROR_MESSAGES.AUTH.PASSWORD_REQUIRED],
-      minlength: [6, ERROR_MESSAGES.AUTH.PASSWORD_LENGTH],
-      maxlength: [128, ERROR_MESSAGES.AUTH.PASSWORD_LENGTH],
+      minlength: [AUTH_CONSTANTS.MIN_PASSWORD_LENGTH, ERROR_MESSAGES.AUTH.PASSWORD_LENGTH],
+      maxlength: [AUTH_CONSTANTS.MAX_PASSWORD_LENGTH, ERROR_MESSAGES.AUTH.PASSWORD_LENGTH],
     },
     role: {
       type: String,
@@ -45,4 +47,4 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-export const User = model<IUser>('User', userSchema);
+export const User = model<IUserDocument>('User', userSchema);

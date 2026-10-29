@@ -12,7 +12,6 @@ export interface RecipeSummary {
   aggregateLikes?: number;
 }
 
-
 export interface RecipeIngredient {
   id: number;
   name: string;
@@ -67,90 +66,68 @@ export interface RecipeSearchQuery {
   limit: number;
 }
 
-export const SUPPORTED_CUISINES = [
-  'african',
-  'asian',
-  'american',
-  'british',
-  'cajun',
-  'caribbean',
-  'chinese',
-  'eastern european',
-  'european',
-  'french',
-  'german',
-  'greek',
-  'indian',
-  'irish',
-  'italian',
-  'japanese',
-  'jewish',
-  'korean',
-  'latin american',
-  'mediterranean',
-  'mexican',
-  'middle eastern',
-  'nordic',
-  'southern',
-  'spanish',
-  'thai',
-  'vietnamese',
-] as const;
+export interface ProviderSearchResult {
+  recipes: RecipeSummary[];
+  pagination: PaginationMeta;
+}
 
-export const SUPPORTED_DIETS = [
-  'gluten free',
-  'ketogenic',
-  'vegetarian',
-  'lacto-vegetarian',
-  'ovo-vegetarian',
-  'vegan',
-  'pescetarian',
-  'paleo',
-  'primal',
-  'low fodmap',
-  'whole30',
-] as const;
+export interface CacheEntry<T> {
+  data: T;
+  expiresAt: number;
+}
 
-export const SUPPORTED_INTOLERANCES = [
-  'dairy',
-  'egg',
-  'gluten',
-  'grain',
-  'peanut',
-  'seafood',
-  'sesame',
-  'shellfish',
-  'soy',
-  'sulfite',
-  'tree nut',
-  'wheat',
-] as const;
+export interface SpoonacularRawDetail {
+  id: number;
+  title: string;
+  image?: string;
+  summary?: string;
+  readyInMinutes?: number;
+  preparationMinutes?: number;
+  cookingMinutes?: number;
+  servings?: number;
+  cuisines?: string[];
+  dishTypes?: string[];
+  diets?: string[];
+  healthScore?: number;
+  aggregateLikes?: number;
+  instructions?: string;
+  sourceUrl?: string;
+  extendedIngredients?: Array<{
+    id?: number;
+    name?: string;
+    original?: string;
+    amount?: number;
+    unit?: string;
+  }>;
+  analyzedInstructions?: Array<{
+    steps?: Array<{
+      number: number;
+      step: string;
+    }>;
+  }>;
+  nutrition?: {
+    nutrients?: Array<{
+      name: string;
+      amount: number;
+      unit: string;
+      percentOfDailyNeeds?: number;
+    }>;
+  };
+}
 
-export const SUPPORTED_MEAL_TYPES = [
-  'main course',
-  'side dish',
-  'dessert',
-  'appetizer',
-  'salad',
-  'bread',
-  'breakfast',
-  'soup',
-  'beverage',
-  'sauce',
-  'marinade',
-  'fingerfood',
-  'snack',
-  'drink',
-] as const;
-
-export const SUPPORTED_SORT_OPTIONS = [
-  'popularity',
-  'healthiness',
-  'price',
-  'time',
-  'calories',
-  'nutrients',
-  'random',
-  'max-used-ingredients',
-  'min-missing-ingredients',
-] as const;
+export interface SpoonacularSearchResponse {
+  results?: Array<{
+    id: number;
+    title: string;
+    image?: string;
+    summary?: string;
+    readyInMinutes?: number;
+    servings?: number;
+    cuisines?: string[];
+    diets?: string[];
+    dishTypes?: string[];
+    healthScore?: number;
+    aggregateLikes?: number;
+  }>;
+  totalResults?: number;
+}
