@@ -1,7 +1,8 @@
-import { Schema, model, type Document, type Types } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
 import { ERROR_MESSAGES } from '../constants/index.js';
+import { Types } from 'mongoose';
 
-export interface IFavorite extends Document {
+export interface IFavoriteDocument extends Document {
   userId: Types.ObjectId;
   recipeId: number;
   title: string;
@@ -11,7 +12,7 @@ export interface IFavorite extends Document {
   createdAt: Date;
 }
 
-const favoriteSchema = new Schema<IFavorite>(
+const favoriteSchema = new Schema<IFavoriteDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -49,7 +50,6 @@ const favoriteSchema = new Schema<IFavorite>(
   }
 );
 
-// Compound index to guarantee uniqueness per user and efficient lookups
 favoriteSchema.index({ userId: 1, recipeId: 1 }, { unique: true });
 
-export const Favorite = model<IFavorite>('Favorite', favoriteSchema);
+export const Favorite = model<IFavoriteDocument>('Favorite', favoriteSchema);

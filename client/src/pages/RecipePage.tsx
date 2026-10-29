@@ -139,7 +139,7 @@ export function RecipePage() {
     <div className="min-h-screen bg-[#FAFAF7] text-[#242824] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+      <main className="flex-1 w-full px-3.5 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5">
         <div className="space-y-1 pb-3 border-b border-[#E6E8E3]">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#242824]">
             Recipes

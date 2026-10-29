@@ -73,7 +73,7 @@ export function RecipeDetailPage() {
     <div className="min-h-screen bg-[#FAFAF7] text-[#242824] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8">
+      <main className="flex-1 w-full px-3.5 sm:px-6 lg:px-8 py-5 sm:py-6">
         <div className="flex items-center justify-between gap-4 mb-4">
           <button
             type="button"
