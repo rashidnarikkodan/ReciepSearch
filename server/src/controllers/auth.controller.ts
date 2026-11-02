@@ -1,8 +1,9 @@
 import type { Request, Response } from 'express';
 import type { IUserService, ITokenService } from '../interfaces/index.js';
-import { ResponseFactory } from '../core/response/response.factory.js';
+import success from '../utils/success.js';
 import { UnauthorizedError } from '../errors/index.js';
 import {
+  HTTP_STATUS,
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
   AUTH_CONSTANTS,
@@ -23,7 +24,7 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     res.cookie(AUTH_CONSTANTS.COOKIE_NAME, token, getAuthCookieOptions(isProduction));
 
-    ResponseFactory.created(res, { user, token }, SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS);
+    success(res, SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS, HTTP_STATUS.CREATED, { user, token });
   };
 
   public login = async (req: Request, res: Response): Promise<void> => {
@@ -33,7 +34,7 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     res.cookie(AUTH_CONSTANTS.COOKIE_NAME, token, getAuthCookieOptions(isProduction));
 
-    ResponseFactory.success(res, { user, token }, SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS);
+    success(res, SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS, HTTP_STATUS.OK, { user, token });
   };
 
   public getMe = async (req: Request, res: Response): Promise<void> => {
@@ -44,8 +45,7 @@ export class AuthController {
     }
 
     const user = await this.userService.getMe(String(userId));
-
-    ResponseFactory.success(res, { user });
+    success(res, undefined, HTTP_STATUS.OK, { user });
   };
 
   public logout = async (req: Request, res: Response): Promise<void> => {
@@ -58,6 +58,6 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     res.clearCookie(AUTH_CONSTANTS.COOKIE_NAME, getAuthCookieOptions(isProduction));
 
-    ResponseFactory.success(res, undefined, SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS);
+    success(res, SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS, HTTP_STATUS.OK);
   };
 }

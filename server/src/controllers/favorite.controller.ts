@@ -1,8 +1,9 @@
 import type { Request, Response } from 'express';
 import type { IFavoriteService } from '../interfaces/index.js';
-import { ResponseFactory } from '../core/response/response.factory.js';
+import success from '../utils/success.js';
 import { UnauthorizedError, NotFoundError } from '../errors/index.js';
 import {
+  HTTP_STATUS,
   ERROR_CODES,
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
@@ -20,8 +21,7 @@ export class FavoriteController {
     }
 
     const favorites = await this.service.getFavoritesByUser(String(userId));
-
-    ResponseFactory.success(res, favorites, undefined, undefined, favorites.length);
+    success(res, undefined, HTTP_STATUS.OK, favorites);
   };
 
   public addFavorite = async (req: Request, res: Response): Promise<void> => {
@@ -32,8 +32,7 @@ export class FavoriteController {
     }
 
     const favorite = await this.service.addFavorite(String(userId), req.body as AddFavoriteRequestDto);
-
-    ResponseFactory.created(res, favorite, SUCCESS_MESSAGES.FAVORITES.RECIPE_SAVED);
+    success(res, SUCCESS_MESSAGES.FAVORITES.RECIPE_SAVED, HTTP_STATUS.CREATED, favorite);
   };
 
   public removeFavorite = async (req: Request, res: Response): Promise<void> => {
@@ -50,7 +49,7 @@ export class FavoriteController {
       throw new NotFoundError(ERROR_MESSAGES.FAVORITES.NOT_FOUND, ERROR_CODES.FAVORITE_NOT_FOUND);
     }
 
-    ResponseFactory.success(res, undefined, SUCCESS_MESSAGES.FAVORITES.RECIPE_REMOVED);
+    success(res, SUCCESS_MESSAGES.FAVORITES.RECIPE_REMOVED, HTTP_STATUS.OK);
   };
 
   public checkIsFavorite = async (req: Request, res: Response): Promise<void> => {
@@ -63,7 +62,7 @@ export class FavoriteController {
     const recipeId = Number(req.params.recipeId);
     const isFav = await this.service.isFavorite(String(userId), recipeId);
 
-    ResponseFactory.success(res, {
+    success(res, undefined, HTTP_STATUS.OK, {
       isFavorite: isFav,
     });
   };
