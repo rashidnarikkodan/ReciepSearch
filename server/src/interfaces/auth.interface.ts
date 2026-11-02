@@ -1,13 +1,13 @@
 import type {
-  RegisterDTO,
-  LoginDTO,
-  AuthUserPayload,
-} from '../types/index.js';
+  RegisterRequestDto,
+  LoginRequestDto,
+  UserResponseDto,
+} from '../dtos/auth.dto.js';
 
 export interface IUserService {
-  register(data: RegisterDTO): Promise<AuthUserPayload>;
-  login(credentials: LoginDTO): Promise<AuthUserPayload>;
-  getMe(userId: string): Promise<AuthUserPayload>;
+  register(data: RegisterRequestDto): Promise<UserResponseDto>;
+  login(credentials: LoginRequestDto): Promise<UserResponseDto>;
+  getMe(userId: string): Promise<UserResponseDto>;
 }
 
 export interface ITokenService {

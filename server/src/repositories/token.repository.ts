@@ -1,23 +1,23 @@
-import { Token } from '../models/token.model.js';
-import type { ITokenDocument } from '../types/index.js';
+import { Token, type ITokenDocument } from '../models/token.model.js';
 import type { ITokenRepository, CreateTokenData } from '../interfaces/index.js';
+import { BaseMongoRepository } from './base/base.mongo.repository.js';
 
-export class TokenRepository implements ITokenRepository {
-  public async create(data: CreateTokenData): Promise<ITokenDocument> {
-    return Token.create(data);
+export class TokenRepository extends BaseMongoRepository<ITokenDocument, CreateTokenData> implements ITokenRepository {
+  constructor() {
+    super(Token);
   }
 
   public async findByToken(token: string): Promise<ITokenDocument | null> {
-    return Token.findOne({ token });
+    return this.model.findOne({ token }).exec();
   }
 
   public async deleteByToken(token: string): Promise<boolean> {
-    const result = await Token.deleteOne({ token });
+    const result = await this.model.deleteOne({ token }).exec();
     return (result.deletedCount || 0) > 0;
   }
 
   public async deleteById(id: string): Promise<boolean> {
-    const result = await Token.deleteOne({ _id: id });
+    const result = await this.model.deleteOne({ _id: id }).exec();
     return (result.deletedCount || 0) > 0;
   }
 }

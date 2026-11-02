@@ -131,3 +131,5 @@ export interface SpoonacularSearchResponse {
   }>;
   totalResults?: number;
 }
+
+export type SpoonacularRawSummary = NonNullable<SpoonacularSearchResponse['results']>[number];

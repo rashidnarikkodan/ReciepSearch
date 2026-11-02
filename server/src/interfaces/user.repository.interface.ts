@@ -1,5 +1,6 @@
-import { IUserDocument } from '../models/user.model.js';
+import type { IUserDocument } from '../models/user.model.js';
 import type { UserRole } from '../types/index.js';
+import type { IBaseRepository } from './base.repository.interface.js';
 
 export interface CreateUserData {
   name: string;
@@ -8,8 +9,6 @@ export interface CreateUserData {
   role?: UserRole;
 }
 
-export interface IUserRepository {
+export interface IUserRepository extends IBaseRepository<IUserDocument, CreateUserData> {
   findByEmail(email: string): Promise<IUserDocument | null>;
-  findById(id: string): Promise<IUserDocument | null>;
-  create(data: CreateUserData): Promise<IUserDocument>;
 }

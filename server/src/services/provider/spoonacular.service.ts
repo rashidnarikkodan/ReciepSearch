@@ -20,6 +20,7 @@ import {
   BadGatewayError,
 } from '../../errors/index.js';
 import type { IRecipeProvider } from '../../interfaces/index.js';
+import { RecipeMapper } from '../../mappers/recipe.mapper.js';
 
 export class ProviderError extends AppError {
   constructor(
@@ -115,19 +116,7 @@ export class SpoonacularService implements IRecipeProvider {
     const totalResults = typeof rawData.totalResults === 'number' ? rawData.totalResults : results.length;
     const totalPages = Math.ceil(totalResults / params.limit) || 1;
 
-    const recipes: RecipeSummary[] = results.map((item) => ({
-      id: item.id,
-      title: item.title,
-      image: item.image || '',
-      summary: this.cleanSummaryHtml(item.summary || ''),
-      readyInMinutes: item.readyInMinutes || 0,
-      servings: item.servings || 0,
-      cuisines: item.cuisines || [],
-      diets: item.diets || [],
-      dishTypes: item.dishTypes || [],
-      healthScore: item.healthScore,
-      aggregateLikes: item.aggregateLikes,
-    }));
+    const recipes: RecipeSummary[] = RecipeMapper.toSummaryDtoList(results);
 
     const result: ProviderSearchResult = {
       recipes,
@@ -162,42 +151,7 @@ export class SpoonacularService implements IRecipeProvider {
 
     const raw = await this.fetchWithRetry<SpoonacularRawDetail>(url, recipeId);
 
-    const detail: RecipeDetail = {
-      id: raw.id,
-      title: raw.title,
-      image: raw.image || '',
-      summary: this.cleanSummaryHtml(raw.summary || ''),
-      readyInMinutes: raw.readyInMinutes || 0,
-      preparationMinutes: raw.preparationMinutes,
-      cookingMinutes: raw.cookingMinutes,
-      servings: raw.servings || 1,
-      cuisines: raw.cuisines || [],
-      dishTypes: raw.dishTypes || [],
-      diets: raw.diets || [],
-      healthScore: raw.healthScore,
-      aggregateLikes: raw.aggregateLikes,
-      instructions: this.cleanSummaryHtml(raw.instructions || ''),
-      sourceUrl: raw.sourceUrl,
-      ingredients: (raw.extendedIngredients || []).map((ing, idx) => ({
-        id: ing.id || idx,
-        name: ing.name || '',
-        original: ing.original || '',
-        amount: ing.amount || 0,
-        unit: ing.unit || '',
-      })),
-      steps:
-        raw.analyzedInstructions?.[0]?.steps?.map((s) => ({
-          number: s.number,
-          step: s.step,
-        })) || [],
-      nutrients:
-        raw.nutrition?.nutrients?.slice(0, 8).map((n) => ({
-          name: n.name,
-          amount: n.amount,
-          unit: n.unit,
-          percentOfDailyNeeds: n.percentOfDailyNeeds,
-        })) || [],
-    };
+    const detail: RecipeDetail = RecipeMapper.toDetailDto(raw);
 
     this.setInCache(cacheKey, detail);
     return detail;

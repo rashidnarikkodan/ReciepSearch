@@ -1,9 +1,8 @@
-import { IFavoriteDocument } from '../models/favorite.model.js';
-import type { AddFavoriteDTO } from '../types/index.js';
+import type { AddFavoriteRequestDto, FavoriteResponseDto } from '../dtos/favorite.dto.js';
 
 export interface IFavoriteService {
-  getFavoritesByUser(userId: string): Promise<IFavoriteDocument[]>;
-  addFavorite(userId: string, data: AddFavoriteDTO): Promise<IFavoriteDocument>;
+  getFavoritesByUser(userId: string): Promise<FavoriteResponseDto[]>;
+  addFavorite(userId: string, data: AddFavoriteRequestDto): Promise<FavoriteResponseDto>;
   removeFavorite(userId: string, recipeId: number): Promise<boolean>;
   isFavorite(userId: string, recipeId: number): Promise<boolean>;
 }

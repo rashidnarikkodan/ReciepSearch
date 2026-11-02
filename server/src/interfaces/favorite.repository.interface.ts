@@ -1,4 +1,5 @@
-import { IFavoriteDocument } from "../models/favorite.model.js";
+import type { IFavoriteDocument } from '../models/favorite.model.js';
+import type { IBaseRepository } from './base.repository.interface.js';
 
 export interface CreateFavoriteData {
   userId: string;
@@ -9,10 +10,9 @@ export interface CreateFavoriteData {
   servings?: number;
 }
 
-export interface IFavoriteRepository {
+export interface IFavoriteRepository extends IBaseRepository<IFavoriteDocument, CreateFavoriteData> {
   findByUser(userId: string): Promise<IFavoriteDocument[]>;
-  findOne(userId: string, recipeId: number): Promise<IFavoriteDocument | null>;
-  create(data: CreateFavoriteData): Promise<IFavoriteDocument>;
-  delete(userId: string, recipeId: number): Promise<boolean>;
-  count(userId: string, recipeId: number): Promise<number>;
+  findOneByUserAndRecipe(userId: string, recipeId: number): Promise<IFavoriteDocument | null>;
+  deleteByUserAndRecipe(userId: string, recipeId: number): Promise<boolean>;
+  countByUserAndRecipe(userId: string, recipeId: number): Promise<number>;
 }

@@ -1,5 +1,6 @@
-import type { AddFavoriteDTO, IFavoriteDocument } from '../types/index.js';
+import type { AddFavoriteRequestDto, FavoriteResponseDto } from '../dtos/favorite.dto.js';
 import type { IFavoriteService, IRecipeService, IFavoriteRepository } from '../interfaces/index.js';
+import { FavoriteMapper } from '../mappers/favorite.mapper.js';
 
 export class FavoriteService implements IFavoriteService {
   constructor(
@@ -7,11 +8,12 @@ export class FavoriteService implements IFavoriteService {
     private readonly recipeSvc: IRecipeService
   ) {}
 
-  public async getFavoritesByUser(userId: string): Promise<IFavoriteDocument[]> {
-    return this.favoriteRepo.findByUser(userId);
+  public async getFavoritesByUser(userId: string): Promise<FavoriteResponseDto[]> {
+    const docs = await this.favoriteRepo.findByUser(userId);
+    return FavoriteMapper.toResponseDtoList(docs);
   }
 
-  public async addFavorite(userId: string, data: AddFavoriteDTO): Promise<IFavoriteDocument> {
+  public async addFavorite(userId: string, data: AddFavoriteRequestDto): Promise<FavoriteResponseDto> {
     let title = data.title;
     let image = data.image;
     let readyInMinutes = data.readyInMinutes;
@@ -25,12 +27,12 @@ export class FavoriteService implements IFavoriteService {
       servings = servings !== undefined ? servings : details.servings;
     }
 
-    const existing = await this.favoriteRepo.findOne(userId, data.recipeId);
+    const existing = await this.favoriteRepo.findOneByUserAndRecipe(userId, data.recipeId);
     if (existing) {
-      return existing;
+      return FavoriteMapper.toResponseDto(existing);
     }
 
-    return this.favoriteRepo.create({
+    const created = await this.favoriteRepo.create({
       userId,
       recipeId: data.recipeId,
       title: title.slice(0, 200),
@@ -38,14 +40,16 @@ export class FavoriteService implements IFavoriteService {
       readyInMinutes,
       servings,
     });
+
+    return FavoriteMapper.toResponseDto(created);
   }
 
   public async removeFavorite(userId: string, recipeId: number): Promise<boolean> {
-    return this.favoriteRepo.delete(userId, recipeId);
+    return this.favoriteRepo.deleteByUserAndRecipe(userId, recipeId);
   }
 
   public async isFavorite(userId: string, recipeId: number): Promise<boolean> {
-    const count = await this.favoriteRepo.count(userId, recipeId);
+    const count = await this.favoriteRepo.countByUserAndRecipe(userId, recipeId);
     return count > 0;
   }
 }
