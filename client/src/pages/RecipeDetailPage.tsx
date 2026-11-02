@@ -60,6 +60,8 @@ export function RecipeDetailPage() {
         readyInMinutes: recipe.readyInMinutes,
         servings: recipe.servings,
       });
+    } catch {
+      // Handled in context / auth modal
     } finally {
       setIsTogglingFav(false);
     }

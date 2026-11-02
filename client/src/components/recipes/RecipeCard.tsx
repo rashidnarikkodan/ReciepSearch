@@ -46,6 +46,8 @@ export function RecipeCard({
           servings,
         });
       }
+    } catch {
+      // Handled in context / auth modal
     } finally {
       setIsToggling(false);
     }

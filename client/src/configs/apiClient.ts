@@ -10,6 +10,14 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('recipe_auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export async function request<T>(endpoint: string, options: AxiosRequestConfig = {}): Promise<T> {
   try {
     const response = await apiClient.request<T>({

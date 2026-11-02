@@ -80,13 +80,18 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
 
       try {
         await recipeApi.removeFavorite(recipeId);
-      } catch (err) {
-        console.error('Failed to remove favorite:', err);
+      } catch (err: unknown) {
         setFavorites(previous);
+        const errMsg = err instanceof Error ? err.message : String(err);
+        if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized')) {
+          openAuthModal('login');
+          return;
+        }
+        console.error('Failed to remove favorite:', err);
         throw err;
       }
     },
-    [isAuthenticated, favorites]
+    [isAuthenticated, favorites, openAuthModal]
   );
 
   const toggleFavorite = useCallback(
@@ -104,9 +109,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         try {
           await recipeApi.removeFavorite(recipe.recipeId);
           return false;
-        } catch (err) {
-          console.error('Failed to unfavorite recipe:', err);
+        } catch (err: unknown) {
           setFavorites(previous);
+          const errMsg = err instanceof Error ? err.message : String(err);
+          if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized')) {
+            openAuthModal('login');
+            return false;
+          }
+          console.error('Failed to unfavorite recipe:', err);
           throw err;
         }
       } else {
@@ -131,9 +141,14 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
             );
           }
           return true;
-        } catch (err) {
-          console.error('Failed to add favorite:', err);
+        } catch (err: unknown) {
           setFavorites(previous);
+          const errMsg = err instanceof Error ? err.message : String(err);
+          if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized')) {
+            openAuthModal('login');
+            return false;
+          }
+          console.error('Failed to add favorite:', err);
           throw err;
         }
       }

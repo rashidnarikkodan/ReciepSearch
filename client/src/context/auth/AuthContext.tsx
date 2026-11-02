@@ -4,12 +4,14 @@ import { authApi } from '../../apis/authApi';
 import type { User, LoginDTO, RegisterDTO, AuthContextType } from '../../types/auth.types';
 
 const USER_STORAGE_KEY = 'recipe_auth_user';
+const TOKEN_STORAGE_KEY = 'recipe_auth_token';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+      return stored && token ? JSON.parse(stored) : null;
     } catch {
       return null;
     }
@@ -42,6 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
       } catch {
         localStorage.removeItem(USER_STORAGE_KEY);
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -56,6 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const data = await authApi.login(credentials);
+      if (data.token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
+      }
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
       setUser(data.user);
       setIsAuthModalOpen(false);
@@ -74,6 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     try {
       const res = await authApi.register(data);
+      if (res.token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, res.token);
+      }
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(res.user));
       setUser(res.user);
       setIsAuthModalOpen(false);
@@ -95,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.warn('Server logout error:', err);
     } finally {
       localStorage.removeItem(USER_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_STORAGE_KEY);
       setUser(null);
       setIsLoading(false);
     }
