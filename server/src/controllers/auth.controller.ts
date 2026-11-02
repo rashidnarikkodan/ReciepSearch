@@ -1,14 +1,14 @@
 import type { Request, Response } from 'express';
 import type { IUserService, ITokenService } from '../interfaces/index.js';
-import success from '../utils/success.js';
+import { ResponseFactory } from '../core/response/response.factory.js';
 import { UnauthorizedError } from '../errors/index.js';
 import {
-  HTTP_STATUS,
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
   AUTH_CONSTANTS,
   getAuthCookieOptions,
 } from '../constants/index.js';
+import type { RegisterRequestDto, LoginRequestDto } from '../dtos/auth.dto.js';
 
 export class AuthController {
   constructor(
@@ -17,23 +17,23 @@ export class AuthController {
   ) {}
 
   public register = async (req: Request, res: Response): Promise<void> => {
-    const user = await this.userService.register(req.body);
+    const user = await this.userService.register(req.body as RegisterRequestDto);
     const token = await this.tokenService.createToken(user.id);
 
     const isProduction = process.env.NODE_ENV === 'production';
     res.cookie(AUTH_CONSTANTS.COOKIE_NAME, token, getAuthCookieOptions(isProduction));
 
-    success(res, SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS, HTTP_STATUS.CREATED, { user, token });
+    ResponseFactory.created(res, { user, token }, SUCCESS_MESSAGES.AUTH.REGISTER_SUCCESS);
   };
 
   public login = async (req: Request, res: Response): Promise<void> => {
-    const user = await this.userService.login(req.body);
+    const user = await this.userService.login(req.body as LoginRequestDto);
     const token = await this.tokenService.createToken(user.id);
 
     const isProduction = process.env.NODE_ENV === 'production';
     res.cookie(AUTH_CONSTANTS.COOKIE_NAME, token, getAuthCookieOptions(isProduction));
 
-    success(res, SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS, HTTP_STATUS.OK, { user, token });
+    ResponseFactory.success(res, { user, token }, SUCCESS_MESSAGES.AUTH.LOGIN_SUCCESS);
   };
 
   public getMe = async (req: Request, res: Response): Promise<void> => {
@@ -43,9 +43,9 @@ export class AuthController {
       throw new UnauthorizedError(ERROR_MESSAGES.AUTH.UNAUTHORIZED);
     }
 
-    const user = await this.userService.getMe(userId);
+    const user = await this.userService.getMe(String(userId));
 
-    success(res, undefined, HTTP_STATUS.OK, { user });
+    ResponseFactory.success(res, { user });
   };
 
   public logout = async (req: Request, res: Response): Promise<void> => {
@@ -58,6 +58,6 @@ export class AuthController {
     const isProduction = process.env.NODE_ENV === 'production';
     res.clearCookie(AUTH_CONSTANTS.COOKIE_NAME, getAuthCookieOptions(isProduction));
 
-    success(res, SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS, HTTP_STATUS.OK);
+    ResponseFactory.success(res, undefined, SUCCESS_MESSAGES.AUTH.LOGOUT_SUCCESS);
   };
 }

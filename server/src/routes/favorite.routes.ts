@@ -1,17 +1,10 @@
 import { Router } from 'express';
-import { FavoriteController } from '../controllers/favorite.controller.js';
-import { FavoriteService } from '../services/favorite.service.js';
-import { favoriteRepository } from '../repositories/favorite.repository.js';
-import { RecipeService } from '../services/recipe.service.js';
-import { spoonacularService } from '../services/provider/spoonacular.service.js';
+import { container } from '../container.js';
 import authenticate from '../middleware/auth.middleware.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 const router = Router();
-
-const recipeService = new RecipeService(spoonacularService);
-const favoriteService = new FavoriteService(favoriteRepository, recipeService);
-const favoriteController = new FavoriteController(favoriteService);
+const { favoriteController } = container;
 
 router.get('/', authenticate, asyncHandler(favoriteController.listFavorites));
 router.post('/', authenticate, asyncHandler(favoriteController.addFavorite));
