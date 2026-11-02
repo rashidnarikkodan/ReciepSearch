@@ -4,7 +4,6 @@ import { Search, X } from 'lucide-react';
 import { useFavorites } from '../hooks/useFavorites';
 import { Navbar } from '../components/Navbar';
 import { RecipeGrid } from '../components/recipes/RecipeGrid';
-import { Button } from '../components/common/Button';
 import type { FavoriteRecipe } from '../types/recipe.types';
 
 export function FavoritesPage() {
@@ -25,10 +24,10 @@ export function FavoritesPage() {
     <div className="min-h-screen bg-[#FAFAF7] text-[#242824] flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-[#E6E8E3]">
+      <main className="flex-1 w-full px-3 sm:px-6 lg:px-8 py-3.5 sm:py-6 space-y-3.5 sm:space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 pb-2.5 sm:pb-3 border-b border-[#E6E8E3]">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#242824]">
+            <h1 className="text-xl sm:text-3xl font-bold text-[#242824]">
               Favorites
             </h1>
             <p className="text-xs sm:text-sm text-[#737873] mt-1">
@@ -75,18 +74,20 @@ export function FavoritesPage() {
           }
           emptyAction={
             filterQuery ? (
-              <Button
-                variant="secondary"
-                size="sm"
+              <button
+                type="button"
                 onClick={() => setFilterQuery('')}
+                className="text-xs text-[#365B45] hover:underline font-medium cursor-pointer"
               >
                 Clear filter
-              </Button>
+              </button>
             ) : (
-              <Link to="/recipes">
-                <Button variant="primary" size="sm" className="px-4">
-                  Explore Recipes
-                </Button>
+              <Link
+                to="/recipes"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#365B45] hover:bg-[#2b4937] text-white text-xs font-medium transition-colors"
+              >
+                <span>Explore recipes</span>
+                <span>→</span>
               </Link>
             )
           }

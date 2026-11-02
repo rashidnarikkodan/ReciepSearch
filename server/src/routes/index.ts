@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import recipeRoutes from './recipe.routes.js';
 import favoriteRoutes from './favorite.routes.js';
+import authRoutes from './auth.routes.js';
 import { HTTP_STATUS, SUCCESS_MESSAGES } from '../constants/index.js';
 
-const apiRouter = Router();
+const router = Router();
 
-// Health check endpoint
-apiRouter.get('/health', (_req, res) => {
+router.get('/health', (_req, res) => {
   res.status(HTTP_STATUS.OK).json({
     status: SUCCESS_MESSAGES.HEALTH.STATUS_OK,
     timestamp: new Date().toISOString(),
@@ -14,10 +14,8 @@ apiRouter.get('/health', (_req, res) => {
   });
 });
 
-// Recipe discovery (Public, Read-Only)
-apiRouter.use('/recipes', recipeRoutes);
+router.use('/recipes', recipeRoutes);
+router.use('/auth', authRoutes);
+router.use('/favorites', favoriteRoutes);
 
-// User Favorites (Authenticated)
-apiRouter.use('/favorites', favoriteRoutes);
-
-export default apiRouter;
+export default router;

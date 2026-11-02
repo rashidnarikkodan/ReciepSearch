@@ -10,18 +10,6 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Request interceptor to attach bearer token if available
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('recipe_auth_token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 export async function request<T>(endpoint: string, options: AxiosRequestConfig = {}): Promise<T> {
   try {
     const response = await apiClient.request<T>({

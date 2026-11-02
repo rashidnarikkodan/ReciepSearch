@@ -3,7 +3,6 @@ import { AuthContext } from './authContextDef';
 import { authApi } from '../../apis/authApi';
 import type { User, LoginDTO, RegisterDTO, AuthContextType } from '../../types/auth.types';
 
-const TOKEN_STORAGE_KEY = 'recipe_auth_token';
 const USER_STORAGE_KEY = 'recipe_auth_user';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -20,12 +19,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
 
-  // Clear any existing error
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  // Modal controls
   const openAuthModal = useCallback((mode: 'login' | 'register' = 'login') => {
     setAuthModalMode(mode);
     setError(null);
@@ -37,22 +34,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
   }, []);
 
-  // Check initial authentication
   useEffect(() => {
     const initializeAuth = async () => {
-      const token = localStorage.getItem(TOKEN_STORAGE_KEY);
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
         const currentUser = await authApi.getMe();
         setUser(currentUser);
         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
-      } catch (err) {
-        console.warn('Session verification failed, clearing cached session', err);
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
+      } catch {
         localStorage.removeItem(USER_STORAGE_KEY);
         setUser(null);
       } finally {
@@ -63,13 +51,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
-  // Login handler
   const login = async (credentials: LoginDTO) => {
     setIsLoading(true);
     setError(null);
     try {
       const data = await authApi.login(credentials);
-      localStorage.setItem(TOKEN_STORAGE_KEY, data.token);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data.user));
       setUser(data.user);
       setIsAuthModalOpen(false);
@@ -83,13 +69,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Register handler
   const register = async (data: RegisterDTO) => {
     setIsLoading(true);
     setError(null);
     try {
       const res = await authApi.register(data);
-      localStorage.setItem(TOKEN_STORAGE_KEY, res.token);
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(res.user));
       setUser(res.user);
       setIsAuthModalOpen(false);
@@ -103,7 +87,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Logout handler
   const logout = async () => {
     setIsLoading(true);
     try {
@@ -111,7 +94,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.warn('Server logout error:', err);
     } finally {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
       localStorage.removeItem(USER_STORAGE_KEY);
       setUser(null);
       setIsLoading(false);

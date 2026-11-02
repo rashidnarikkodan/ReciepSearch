@@ -1,15 +1,26 @@
-import type { Request, Response, NextFunction } from 'express';
-import { HTTP_STATUS, ERROR_CODES, ERROR_MESSAGES } from '../constants/index.js';
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
+import {
+  ERROR_CODES,
+  ERROR_MESSAGES,
+  APP_CONFIG,
+} from '../constants/index.js';
+import { TooManyRequestsError } from '../errors/index.js';
 
 interface RateLimitRecord {
   count: number;
   resetTime: number;
 }
 
-export function createRateLimiter(options: { windowMs: number; max: number; message: string; code?: string }) {
+interface RateLimiterOptions {
+  windowMs: number;
+  max: number;
+  message: string;
+  code?: string;
+}
+
+export function createRateLimiter(options: RateLimiterOptions): RequestHandler {
   const ipMap = new Map<string, RateLimitRecord>();
 
-  // Periodically clean up expired entries every 5 minutes
   setInterval(() => {
     const now = Date.now();
     for (const [ip, record] of ipMap.entries()) {
@@ -17,9 +28,9 @@ export function createRateLimiter(options: { windowMs: number; max: number; mess
         ipMap.delete(ip);
       }
     }
-  }, 5 * 60 * 1000).unref();
+  }, APP_CONFIG.RATE_LIMIT_CLEANUP_INTERVAL_MS).unref();
 
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     const ip = req.ip || req.socket.remoteAddress || 'unknown-client';
     const now = Date.now();
     let record = ipMap.get(ip);
@@ -38,34 +49,23 @@ export function createRateLimiter(options: { windowMs: number; max: number; mess
 
     if (record.count > options.max) {
       const retryAfterSeconds = Math.ceil((record.resetTime - now) / 1000);
-      res.setHeader('Retry-After', retryAfterSeconds);
-      res.status(HTTP_STATUS.TOO_MANY_REQUESTS).json({
-        success: false,
-        message: options.message,
-        error: {
-          code: options.code || ERROR_CODES.RATE_LIMIT_EXCEEDED,
-          message: options.message,
-        },
-      });
-      return;
+      throw new TooManyRequestsError(options.message, retryAfterSeconds, options.code || ERROR_CODES.RATE_LIMIT_EXCEEDED);
     }
 
     next();
   };
 }
 
-// 15-minute window, max 20 attempts for login & registration
 export const authRateLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000,
-  max: 20,
+  windowMs: APP_CONFIG.AUTH_RATE_LIMIT_WINDOW_MS,
+  max: APP_CONFIG.AUTH_RATE_LIMIT_MAX,
   message: ERROR_MESSAGES.RATE_LIMIT.AUTH_LIMIT_EXCEEDED,
   code: ERROR_CODES.RATE_LIMIT_EXCEEDED,
 });
 
-// 1-minute window, max 60 requests for recipe search & details
 export const recipeRateLimiter = createRateLimiter({
-  windowMs: 60 * 1000,
-  max: 60,
+  windowMs: APP_CONFIG.RECIPE_RATE_LIMIT_WINDOW_MS,
+  max: APP_CONFIG.RECIPE_RATE_LIMIT_MAX,
   message: ERROR_MESSAGES.RATE_LIMIT.RECIPE_LIMIT_EXCEEDED,
   code: ERROR_CODES.RATE_LIMIT_EXCEEDED,
 });
