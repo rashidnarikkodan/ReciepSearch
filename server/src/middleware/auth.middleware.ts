@@ -13,7 +13,10 @@ export default async function authenticate(
   _res: Response,
   next: NextFunction
 ): Promise<void> {
-  const token = req.cookies?.[AUTH_CONSTANTS.COOKIE_NAME];
+  const authHeader = req.headers.authorization;
+  const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : null;
+  const cookieToken = req.cookies?.[AUTH_CONSTANTS.COOKIE_NAME];
+  const token = headerToken || cookieToken;
 
   if (!token) {
     throw new UnauthorizedError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, ERROR_CODES.UNAUTHORIZED);

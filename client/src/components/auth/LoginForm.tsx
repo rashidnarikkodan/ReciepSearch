@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { Alert } from '../common/Alert';
+import { getErrorMessage } from '../../utils/error';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -31,7 +32,7 @@ export function LoginForm({ onSwitchToRegister, onSuccess }: LoginFormProps) {
       await login({ email: email.trim(), password });
       onSuccess?.();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Invalid credentials. Please try again.';
+      const msg = getErrorMessage(err, 'Invalid email or password. Please try again.');
       setLocalError(msg);
     } finally {
       setIsSubmitting(false);

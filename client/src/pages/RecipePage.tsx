@@ -4,6 +4,7 @@ import { recipeApi } from '../apis/recipeApi';
 import { Navbar } from '../components/Navbar';
 import { RecipeSearchFilters } from '../components/recipes/RecipeSearchFilters';
 import { RecipeGrid } from '../components/recipes/RecipeGrid';
+import { getErrorMessage } from '../utils/error';
 import type { RecipeSummary, PaginationMeta, RecipeSearchParams } from '../types/recipe.types';
 
 const INITIAL_FILTERS: RecipeSearchParams = {
@@ -87,10 +88,7 @@ export function RecipePage() {
       })
       .catch((err: unknown) => {
         if (!ignore) {
-          const msg =
-            err instanceof Error
-              ? err.message
-              : 'Failed to load recipes. Please check your connection.';
+          const msg = getErrorMessage(err, 'Failed to load recipes. Please check your connection.');
           setError(msg);
           setRecipes([]);
         }
@@ -149,11 +147,7 @@ export function RecipePage() {
         });
       }
     } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : 'Failed to load more recipes.';
-      setLoadMoreError(msg);
+      setLoadMoreError(getErrorMessage(err, 'Failed to load more recipes.'));
     } finally {
       setIsLoadingMore(false);
     }
