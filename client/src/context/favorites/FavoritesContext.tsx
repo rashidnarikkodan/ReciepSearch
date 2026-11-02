@@ -13,6 +13,7 @@ import {
   type FavoritesContextType,
   type ToggleFavoritePayload,
 } from './favoritesContextDef';
+import { getErrorMessage } from '../../utils/error';
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, openAuthModal } = useAuth();
@@ -82,8 +83,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         await recipeApi.removeFavorite(recipeId);
       } catch (err: unknown) {
         setFavorites(previous);
-        const errMsg = err instanceof Error ? err.message : String(err);
-        if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized')) {
+        const errMsg = getErrorMessage(err);
+        if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('log in') || errMsg.toLowerCase().includes('sign in')) {
           openAuthModal('login');
           return;
         }
@@ -111,8 +112,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
           return false;
         } catch (err: unknown) {
           setFavorites(previous);
-          const errMsg = err instanceof Error ? err.message : String(err);
-          if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized')) {
+          const errMsg = getErrorMessage(err);
+          if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('log in') || errMsg.toLowerCase().includes('sign in')) {
             openAuthModal('login');
             return false;
           }
@@ -143,8 +144,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
           return true;
         } catch (err: unknown) {
           setFavorites(previous);
-          const errMsg = err instanceof Error ? err.message : String(err);
-          if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized')) {
+          const errMsg = getErrorMessage(err);
+          if (errMsg.includes('401') || errMsg.toLowerCase().includes('unauthorized') || errMsg.toLowerCase().includes('log in') || errMsg.toLowerCase().includes('sign in')) {
             openAuthModal('login');
             return false;
           }

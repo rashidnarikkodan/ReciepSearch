@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { Alert } from '../common/Alert';
+import { getErrorMessage } from '../../utils/error';
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -54,7 +55,7 @@ export function RegisterForm({ onSwitchToLogin, onSuccess }: RegisterFormProps) 
       });
       onSuccess?.();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      const msg = getErrorMessage(err, 'Registration failed. Please check your details.');
       setLocalError(msg);
     } finally {
       setIsSubmitting(false);

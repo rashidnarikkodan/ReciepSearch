@@ -1,4 +1,5 @@
 import axios, { type AxiosRequestConfig, AxiosError } from 'axios';
+import { getErrorMessage } from '../utils/error';
 
 const BASE_URL = import.meta.env.VITE_API_URL;
 
@@ -18,6 +19,16 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (axios.isAxiosError(error)) {
+      error.message = getErrorMessage(error, error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
 export async function request<T>(endpoint: string, options: AxiosRequestConfig = {}): Promise<T> {
   try {
     const response = await apiClient.request<T>({
@@ -27,7 +38,7 @@ export async function request<T>(endpoint: string, options: AxiosRequestConfig =
     return response.data;
   } catch (error) {
     if (error instanceof AxiosError) {
-      const errorMsg = error.response?.data?.message || error.message || 'Request failed';
+      const errorMsg = getErrorMessage(error, error.message || 'Request failed');
       throw new Error(errorMsg, { cause: error });
     }
     throw error;

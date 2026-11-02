@@ -8,6 +8,7 @@ import { NutritionOverview } from '../components/recipes/NutritionOverview';
 import { IngredientsList } from '../components/recipes/IngredientsList';
 import { CookingInstructions } from '../components/recipes/CookingInstructions';
 import { Button } from '../components/common/Button';
+import { getErrorMessage } from '../utils/error';
 import type { RecipeDetail } from '../types/recipe.types';
 
 export function RecipeDetailPage() {
@@ -32,10 +33,7 @@ export function RecipeDetailPage() {
         const data = await recipeApi.getRecipeById(id);
         setRecipe(data);
       } catch (err: unknown) {
-        const msg =
-          err instanceof Error
-            ? err.message
-            : 'Could not load recipe details.';
+        const msg = getErrorMessage(err, 'Could not load recipe details.');
         setError(msg);
       } finally {
         setIsLoading(false);

@@ -3,6 +3,8 @@ import { AuthContext } from './authContextDef';
 import { authApi } from '../../apis/authApi';
 import type { User, LoginDTO, RegisterDTO, AuthContextType } from '../../types/auth.types';
 
+import { getErrorMessage } from '../../utils/error';
+
 const USER_STORAGE_KEY = 'recipe_auth_user';
 const TOKEN_STORAGE_KEY = 'recipe_auth_token';
 
@@ -66,10 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(data.user);
       setIsAuthModalOpen(false);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Invalid email or password. Please try again.';
+      const message = getErrorMessage(err, 'Invalid email or password. Please try again.');
       setError(message);
-      throw err;
+      throw new Error(message, { cause: err });
     } finally {
       setIsLoading(false);
     }
@@ -87,10 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(res.user);
       setIsAuthModalOpen(false);
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Registration failed. Please check your details.';
+      const message = getErrorMessage(err, 'Registration failed. Please check your details.');
       setError(message);
-      throw err;
+      throw new Error(message, { cause: err });
     } finally {
       setIsLoading(false);
     }
