@@ -170,16 +170,16 @@ export function RecipeSearchFilters({
           type="button"
           onClick={() => setIsOpen(true)}
           aria-expanded={isOpen}
-          className={`px-3 sm:px-3.5 py-2 sm:py-2.5 border rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 ${
+          className={`px-3 sm:px-3.5 lg:px-4 py-2 sm:py-2.5 border rounded-lg text-xs lg:text-sm font-medium flex items-center gap-1.5 lg:gap-2 transition-colors cursor-pointer shrink-0 ${
             isOpen || activeFilterCount > 0
               ? 'border-[#365B45] text-[#365B45] bg-[#365B45]/10 font-semibold'
               : 'border-[#D8DCD4] bg-[#FFFFFF] text-[#242824] hover:border-[#365B45]'
           }`}
         >
-          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <SlidersHorizontal className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
           <span>Filters</span>
           {activeFilterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-[#365B45] text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="w-4 h-4 lg:w-4.5 lg:h-4.5 rounded-full bg-[#365B45] text-white text-[10px] lg:text-xs font-bold flex items-center justify-center">
               {activeFilterCount}
             </span>
           )}
@@ -339,7 +339,7 @@ export function RecipeSearchFilters({
               transform: `translateY(${dragOffset}px)`,
               transition: isDragging ? 'none' : 'transform 260ms cubic-bezier(0.16, 1, 0.3, 1)',
             }}
-            className="relative z-10 w-full max-w-2xl mx-auto bg-[#FFFFFF] rounded-t-2xl border-t border-x border-[#E3E6E0] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
+            className="relative z-10 w-full max-w-2xl lg:max-w-4xl mx-auto bg-[#FFFFFF] rounded-t-2xl lg:rounded-t-3xl border-t border-x border-[#E3E6E0] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
           >
             {/* Draggable Header / Pull Handle */}
             <div
@@ -347,22 +347,22 @@ export function RecipeSearchFilters({
               onPointerMove={handlePointerMove}
               onPointerUp={handlePointerUp}
               onPointerCancel={handlePointerUp}
-              className="w-full pt-3 pb-2.5 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing touch-none select-none bg-[#FFFFFF]"
+              className="w-full pt-3 pb-2.5 lg:pt-4 lg:pb-3 flex flex-col items-center justify-center cursor-grab active:cursor-grabbing touch-none select-none bg-[#FFFFFF]"
             >
-              <div className="w-12 h-1.5 bg-[#D4D8CF] rounded-full hover:bg-[#B8BDB2] transition-colors" />
-              <span className="text-[10px] text-[#A3A8A0] font-medium tracking-tight mt-1.5">
+              <div className="w-12 h-1.5 lg:w-16 lg:h-2 bg-[#D4D8CF] rounded-full hover:bg-[#B8BDB2] transition-colors" />
+              <span className="text-[10px] lg:text-xs text-[#A3A8A0] font-medium tracking-tight mt-1.5">
                 drag down to close
               </span>
             </div>
 
             {/* Sheet Title Bar (strictly no close button) */}
-            <div className="px-5 pb-3 pt-1 flex items-center justify-between border-b border-[#F0F2ED]">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-[#242824]">
+            <div className="px-5 pb-3 pt-1 lg:px-7 lg:pb-3.5 lg:pt-2 flex items-center justify-between border-b border-[#F0F2ED]">
+              <div className="flex items-center gap-2 lg:gap-2.5">
+                <span className="text-sm lg:text-base font-semibold text-[#242824]">
                   Filter & Sort Recipes
                 </span>
                 {activeFilterCount > 0 && (
-                  <span className="text-[11px] text-[#365B45] font-medium bg-[#365B45]/10 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] lg:text-xs text-[#365B45] font-medium bg-[#365B45]/10 px-2 py-0.5 lg:px-2.5 lg:py-0.5 rounded-full">
                     {activeFilterCount} active
                   </span>
                 )}
@@ -372,7 +372,7 @@ export function RecipeSearchFilters({
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="text-xs text-[#737873] hover:text-[#B42318] transition-colors cursor-pointer font-medium"
+                  className="text-xs lg:text-sm text-[#737873] hover:text-[#B42318] transition-colors cursor-pointer font-medium"
                 >
                   Reset all
                 </button>
@@ -380,11 +380,11 @@ export function RecipeSearchFilters({
             </div>
 
             {/* Scrollable Filters Content */}
-            <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+            <div className="p-4 sm:p-5 lg:p-6.5 overflow-y-auto space-y-4 lg:space-y-5 flex-1">
               {/* Filter Dropdowns Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                 <div>
-                  <label className="block text-[11px] font-medium text-[#737873] mb-1">
+                  <label className="block text-[11px] lg:text-xs font-medium text-[#737873] mb-1 lg:mb-1.5">
                     Cuisine
                   </label>
                   <select
@@ -392,7 +392,7 @@ export function RecipeSearchFilters({
                     onChange={(e) =>
                       onFilterChange({ cuisine: e.target.value || undefined, page: 1 })
                     }
-                    className="w-full py-2 px-2.5 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
+                    className="w-full py-2 px-2.5 lg:py-2.5 lg:px-3 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs lg:text-sm text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
                   >
                     <option value="">All Cuisines</option>
                     {CUISINE_OPTIONS.map((c) => (
@@ -404,7 +404,7 @@ export function RecipeSearchFilters({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-[#737873] mb-1">
+                  <label className="block text-[11px] lg:text-xs font-medium text-[#737873] mb-1 lg:mb-1.5">
                     Diet
                   </label>
                   <select
@@ -412,7 +412,7 @@ export function RecipeSearchFilters({
                     onChange={(e) =>
                       onFilterChange({ diet: e.target.value || undefined, page: 1 })
                     }
-                    className="w-full py-2 px-2.5 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
+                    className="w-full py-2 px-2.5 lg:py-2.5 lg:px-3 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs lg:text-sm text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
                   >
                     <option value="">All Diets</option>
                     {DIET_OPTIONS.map((d) => (
@@ -424,7 +424,7 @@ export function RecipeSearchFilters({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-[#737873] mb-1">
+                  <label className="block text-[11px] lg:text-xs font-medium text-[#737873] mb-1 lg:mb-1.5">
                     Meal Type
                   </label>
                   <select
@@ -432,7 +432,7 @@ export function RecipeSearchFilters({
                     onChange={(e) =>
                       onFilterChange({ type: e.target.value || undefined, page: 1 })
                     }
-                    className="w-full py-2 px-2.5 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
+                    className="w-full py-2 px-2.5 lg:py-2.5 lg:px-3 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs lg:text-sm text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
                   >
                     <option value="">All Meal Types</option>
                     {MEAL_TYPE_OPTIONS.map((t) => (
@@ -444,7 +444,7 @@ export function RecipeSearchFilters({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-[#737873] mb-1">
+                  <label className="block text-[11px] lg:text-xs font-medium text-[#737873] mb-1 lg:mb-1.5">
                     Sort by
                   </label>
                   <select
@@ -457,7 +457,7 @@ export function RecipeSearchFilters({
                         page: 1,
                       });
                     }}
-                    className="w-full py-2 px-2.5 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
+                    className="w-full py-2 px-2.5 lg:py-2.5 lg:px-3 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs lg:text-sm text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white cursor-pointer"
                   >
                     {SORT_OPTIONS.map((s) => (
                       <option key={s.value} value={s.value}>
@@ -469,24 +469,24 @@ export function RecipeSearchFilters({
               </div>
 
               {/* Ingredients Filter Section */}
-              <div className="pt-3 border-t border-[#F0F2ED] grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="pt-3 lg:pt-4 border-t border-[#F0F2ED] grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 text-xs lg:text-sm">
                 <div>
-                  <label className="block text-[11px] font-medium text-[#737873] mb-1">
+                  <label className="block text-[11px] lg:text-xs font-medium text-[#737873] mb-1 lg:mb-1.5">
                     Must include ingredients
                   </label>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1.5 lg:gap-2">
                     <input
                       type="text"
                       placeholder="e.g. garlic, tomato, basil"
                       value={includeIng}
                       onChange={(e) => setIncludeIng(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleApplyIngredients()}
-                      className="flex-1 py-1.5 px-2.5 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white"
+                      className="flex-1 py-1.5 px-2.5 lg:py-2 lg:px-3 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs lg:text-sm text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white"
                     />
                     <button
                       type="button"
                       onClick={handleApplyIngredients}
-                      className="px-3 py-1.5 bg-[#242824] text-white rounded-lg text-xs font-medium hover:bg-black transition-colors cursor-pointer shrink-0"
+                      className="px-3 py-1.5 lg:px-4 lg:py-2 bg-[#242824] text-white rounded-lg text-xs lg:text-sm font-medium hover:bg-black transition-colors cursor-pointer shrink-0"
                     >
                       Apply
                     </button>
@@ -494,22 +494,22 @@ export function RecipeSearchFilters({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium text-[#737873] mb-1">
+                  <label className="block text-[11px] lg:text-xs font-medium text-[#737873] mb-1 lg:mb-1.5">
                     Exclude ingredients
                   </label>
-                  <div className="flex gap-1.5">
+                  <div className="flex gap-1.5 lg:gap-2">
                     <input
                       type="text"
                       placeholder="e.g. peanuts, dairy, pork"
                       value={excludeIng}
                       onChange={(e) => setExcludeIng(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleApplyIngredients()}
-                      className="flex-1 py-1.5 px-2.5 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white"
+                      className="flex-1 py-1.5 px-2.5 lg:py-2 lg:px-3 bg-[#FAFAF7] border border-[#D8DCD4] rounded-lg text-xs lg:text-sm text-[#242824] focus:outline-hidden focus:border-[#365B45] focus:bg-white"
                     />
                     <button
                       type="button"
                       onClick={handleApplyIngredients}
-                      className="px-3 py-1.5 bg-[#242824] text-white rounded-lg text-xs font-medium hover:bg-black transition-colors cursor-pointer shrink-0"
+                      className="px-3 py-1.5 lg:px-4 lg:py-2 bg-[#242824] text-white rounded-lg text-xs lg:text-sm font-medium hover:bg-black transition-colors cursor-pointer shrink-0"
                     >
                       Apply
                     </button>
@@ -519,11 +519,11 @@ export function RecipeSearchFilters({
             </div>
 
             {/* Bottom Actions Bar */}
-            <div className="p-3.5 sm:p-4 bg-[#FFFFFF] border-t border-[#F0F2ED]">
+            <div className="p-3.5 sm:p-4 lg:p-5 bg-[#FFFFFF] border-t border-[#F0F2ED]">
               <button
                 type="button"
                 onClick={closeBottomSheet}
-                className="w-full py-2.5 bg-[#365B45] hover:bg-[#2b4937] text-white font-medium text-xs sm:text-sm rounded-lg transition-colors cursor-pointer text-center"
+                className="w-full py-2.5 lg:py-3.5 bg-[#365B45] hover:bg-[#2b4937] text-white font-medium text-xs sm:text-sm lg:text-base rounded-lg transition-colors cursor-pointer text-center"
               >
                 Done & Show Results
               </button>
