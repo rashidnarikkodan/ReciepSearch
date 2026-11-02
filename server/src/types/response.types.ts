@@ -2,12 +2,12 @@ import type { PaginationMeta } from './recipe.types.js';
 
 export interface IApiResponse<T = unknown> {
   success: boolean;
-  statusCode: number;
+  statusCode?: number;
   message?: string;
   data?: T;
   count?: number;
   pagination?: PaginationMeta;
-  timestamp: string;
+  timestamp?: string;
 }
 
 export interface IApiErrorPayload {
